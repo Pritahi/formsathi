@@ -1,0 +1,51 @@
+{
+  "name": "FormSathi — form bharne ka dost",
+  "short_name": "FormSathi",
+  "description": "Photo kheenchein, Hinglish mein jawab dein, form apne aap bhar jayega. Offline bhi chalta hai, aur aapka data phone se bahar nahi jata.",
+  "id": "/",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f4ec",
+  "theme_color": "#0f5132",
+  "lang": "hi-IN",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities", "government"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Naya form",
+      "short_name": "Naya form",
+      "description": "Form ki photo lein aur bharwana shuru karein",
+      "url": "./index.html#/new",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Answer Vault",
+      "short_name": "Vault",
+      "description": "Apne save kiye hue jawab dekhein",
+      "url": "./index.html#/vault",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
