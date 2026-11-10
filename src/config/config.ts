@@ -52,12 +52,12 @@ export interface FirebaseWebConfig {
  *  While these contain the placeholder string "PASTE_", Firebase is disabled
  *  and the app runs fully local (vault + sessions in IndexedDB).            */
 export const FIREBASE_CONFIG: FirebaseWebConfig = {
-  apiKey: 'PASTE_FIREBASE_API_KEY',
-  authDomain: 'PASTE_PROJECT_ID.firebaseapp.com',
-  projectId: 'PASTE_PROJECT_ID',
-  storageBucket: 'PASTE_PROJECT_ID.firebasestorage.app',
-  messagingSenderId: 'PASTE_MESSAGING_SENDER_ID',
-  appId: 'PASTE_APP_ID',
+  apiKey: 'AIzaSyBWZB7YF_A6A7qcthliKKwVVFTSpgpMvfM',
+  authDomain: 'studio-1586873794-46812.firebaseapp.com',
+  projectId: 'studio-1586873794-46812',
+  storageBucket: 'studio-1586873794-46812.firebasestorage.app',
+  messagingSenderId: '291356683177',
+  appId: '1:291356683177:web:899d9d8c7e44b8ca9132b8',
 };
 
 /** ── 2. DEMO MODE ─────────────────────────────────────────────────────────
