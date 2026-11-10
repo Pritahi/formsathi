@@ -1,0 +1,32 @@
+{
+  "name": "formsathi",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FormSathi — the offline-first form-filling agent. Hybrid on-device + cloud inference PWA built with Firebase AI Logic.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "samples": "python3 scripts/make-samples.py",
+    "icons": "python3 scripts/make-icons.py",
+    "test:e2e": "python3 test/e2e_flow.py http://localhost:4173",
+    "verify": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "firebase": "^13.2.0",
+    "pdfjs-dist": "^5.4.149"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.1.7",
+    "vitest": "^3.2.4"
+  }
+}

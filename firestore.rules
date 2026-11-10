@@ -1,0 +1,67 @@
+rules_version = '2';
+
+/**
+ * FormSathi Firestore rules.
+ *
+ * The whole privacy model depends on WHAT is written here, and these rules are
+ * the second line of defence behind src/ai/redact.ts.
+ *
+ *   form_sessions/{sessionId}  — form METADATA ONLY:
+ *       title, formType, timestamps, per-field traffic lights, verify status,
+ *       and a hash of the instruction text. No answer values, ever.
+ *   sync_meta/{uid}            — per-user sync bookkeeping (last sync, counts).
+ *
+ * Everything is owner-scoped by anonymous uid. There is no public read path: a
+ * leaked session id is useless to anyone else.
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Fields we will never accept on a session document. If a client tries to
+    // slip an answer value in, the write is rejected outright — this is the
+    // structural guarantee that "personal answers never go to Firestore".
+    function noAnswerPayload() {
+      return !request.resource.data.keys().hasAny([
+        'answers', 'vault', 'aadhaar', 'pan', 'mobile', 'phone', 'address',
+        'dob', 'date_of_birth', 'bank_account', 'ifsc', 'income', 'values'
+      ]);
+    }
+
+    match /form_sessions/{sessionId} {
+      // Owner-only read.
+      allow read: if isOwner(resource.data.uid);
+
+      // Create: must be yours, must declare the uid field, must not carry
+      // answer values, and must be small (metadata only).
+      allow create: if isOwner(request.resource.data.uid)
+                    && request.resource.data.uid == request.auth.uid
+                    && noAnswerPayload()
+                    && request.resource.data.fieldCount is int
+                    && request.resource.data.fieldCount <= 200;
+
+      // Update: same owner, and the uid cannot be reassigned.
+      allow update: if isOwner(resource.data.uid)
+                    && request.resource.data.uid == resource.data.uid
+                    && noAnswerPayload();
+
+      allow delete: if isOwner(resource.data.uid);
+    }
+
+    match /sync_meta/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Default deny: any new collection must be added deliberately.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

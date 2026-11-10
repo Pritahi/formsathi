@@ -1,0 +1,36 @@
+rules_version = '2';
+
+/**
+ * FormSathi Storage rules.
+ *
+ * Only one kind of object exists: the user's own compressed form photo, at
+ *   forms/{uid}/{sessionId}.jpg
+ *
+ * Private by construction — there is no download URL sharing path, no public
+ * bucket, and the filename is the anonymous uid. 5 GB is the Spark free tier,
+ * enough for ~35,000 compressed photos.
+ *
+ * NOTE: uploading the photo is OPTIONAL in FormSathi. The app works with the
+ * photo kept only in IndexedDB. This bucket exists so a user can move to a new
+ * phone; the verifier and the certificate stories never need it.
+ */
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /forms/{uid}/{fileName} {
+      allow read, write, delete: if request.auth != null
+                                  && request.auth.uid == uid
+                                  && request.resource == null || (
+                                       request.auth != null
+                                       && request.auth.uid == uid
+                                       && request.resource.size < 5 * 1024 * 1024
+                                       && request.resource.contentType.matches('image/(jpeg|png)')
+                                     );
+    }
+
+    // Default deny everything else.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
