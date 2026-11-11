@@ -385,7 +385,7 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
   }
 
   // ── LIVE ────────────────────────────────────────────────────────────
-  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config bharein ya DEMO MODE chalu karein.');
+  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config is missing. Use Demo mode.');
 
   if (plan.effective === 'on-device' && isOffline() && !capabilityAllowsOffline()) {
     // A real on-device model runs offline; a cloud fallback cannot. Do not
@@ -405,7 +405,7 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
     throw Object.assign(new Error('offline'), { routeLog: log });
   }
 
-  const call = await callModel(FIREBASE_CONFIG, {
+  let call = await callModel(FIREBASE_CONFIG, {
     prompt: promptText,
     image: args.image ? { base64: args.image.base64, mimeType: args.image.mimeType } : undefined,
     json: true,
@@ -433,6 +433,7 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
       temperature: 0,
     });
     extraction = normalizeExtraction(parseJsonLoose<FormExtraction>(repair.text));
+    call = repair;
     if (!extraction.fields.length) throw new Error('The model returned no readable fields. Try another blank sample; no extraction is claimed.');
   }
 
@@ -502,7 +503,7 @@ export async function routeInterviewTurn(args: TurnArgs): Promise<{ turn: Interv
     return { turn, log };
   }
 
-  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config bharein ya DEMO MODE chalu karein.');
+  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config is missing. Use Demo mode.');
 
   const call = await callModel(FIREBASE_CONFIG, {
     prompt: promptText,
@@ -570,7 +571,7 @@ export async function routeNormalizeAnswer(args: {
     return { ...out, log };
   }
 
-  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config bharein ya DEMO MODE chalu karein.');
+  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config is missing. Use Demo mode.');
   const call = await callModel(FIREBASE_CONFIG, {
     prompt: promptText,
     json: true,
@@ -663,7 +664,7 @@ export async function routeCloudVerify(args: VerifyArgs): Promise<{ result: Clou
     return { result, log };
   }
 
-  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config bharein ya DEMO MODE chalu karein.');
+  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config is missing. Use Demo mode.');
   if (isOffline()) {
     const log = logCall({
       task: 'cloud_verify',

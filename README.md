@@ -12,7 +12,7 @@ verified Gemini inference.
   interview, checklist and answer sheet use mock AI. The WebCrypto vault is real.
 - [Firebase deployment](https://formsathi.web.app/): hosting is deployed. Real bundled synthetic scholarship extraction returned 21 fields via Gemini
   3.5 Flash Lite in 6.2 seconds. Production App Check is configured.
-- TypeScript check, production build and **47 unit tests pass** locally.
+- TypeScript check, production build and **50 unit tests pass** locally.
 - Real Gemini Nano execution is **not verified**. Local answer capture was
   verified with 0 KB uploaded. There is no Android wrapper yet.
 

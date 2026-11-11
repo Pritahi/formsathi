@@ -26,7 +26,7 @@ export interface AiCallOptions {
   schema?: unknown;
   temperature?: number;
   maxOutputTokens?: number;
-  /** Preferred half. 'on-device' uses PREFER_ON_DEVICE, 'cloud' is cloud-only. */
+  /** 'on-device' is strict-only; 'hybrid' prefers device; 'cloud' is cloud-only. */
   prefer: 'on-device' | 'cloud' | 'hybrid';
   /** Only bundled, synthetic content may use the unpaid cloud API. */
   syntheticOnly?: boolean;
@@ -70,7 +70,7 @@ export async function initAi(config: FirebaseWebConfig): Promise<void> {
   initPromise = (async () => {
     const { ai, app } = await loadModules();
     const firebaseApp = app.getApps().length ? app.getApp() : app.initializeApp(config);
-      ensureAppCheck(firebaseApp);
+    ensureAppCheck(firebaseApp);
     const aiInstance = ai.getAI(firebaseApp, { backend: new ai.GoogleAIBackend() });
 
     const onDeviceParams = {
@@ -96,7 +96,7 @@ export async function initAi(config: FirebaseWebConfig): Promise<void> {
 
     // ── CLOUD-ONLY MODEL (verify + review + freeform chat) ──────────────
     cloudModel = ai.getGenerativeModel(aiInstance, {
-      model: CLOUD_REASONING_MODEL,
+      model: opts.prefer === 'hybrid' ? CLOUD_MODEL : CLOUD_REASONING_MODEL,
       generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
     });
   })();
@@ -201,7 +201,7 @@ export async function callModel(config: FirebaseWebConfig, opts: AiCallOptions):
   return {
     text,
     path: source === 'on_device' ? 'on-device' : 'cloud',
-    model: source === 'on_device' ? 'gemini-nano (Chrome built-in)' : CLOUD_REASONING_MODEL,
+    model: source === 'on_device' ? 'gemini-nano (Chrome built-in)' : opts.prefer === 'hybrid' ? CLOUD_MODEL : CLOUD_REASONING_MODEL,
     latencyMs,
     fellBack: opts.prefer === 'hybrid' && source !== 'on_device',
   };
