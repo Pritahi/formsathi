@@ -1,5 +1,5 @@
 /**
- * Checklist — where the traffic lights live (MVP feature 7).
+ * Checklist - where the traffic lights live (MVP feature 7).
  *
  * One row per extracted field: label, value, light, provenance badge, and the
  * cloud flag reason when there is one. Tapping a row opens an editor. This is
@@ -32,15 +32,15 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
   host.append(screen);
 
   if (!sessionId) {
-    screen.append(h('div', { class: 'card empty' }, 'Form nahi mila.'));
+    screen.append(h('div', { class: 'card empty' }, 'Form not found.'));
     return () => {};
   }
   const loaded = await loadSession(sessionId);
   if (!loaded || !loaded.extraction) {
     screen.append(
       screenHeader({ title: 'Checklist', back: () => go('home') }),
-      h('div', { class: 'card empty' }, h('span', { class: 'ic' }, '📄'), 'Yeh form nahi mila.'),
-      h('button', { class: 'btn btn-primary btn-block mt-16', onclick: () => go('intake', 'photo') }, 'Naya form'),
+      h('div', { class: 'card empty' }, h('span', { class: 'ic' }, '📄'), 'Form not found.'),
+      h('button', { class: 'btn btn-primary btn-block mt-16', onclick: () => go('intake', 'photo') }, 'New form'),
     );
     return () => {};
   }
@@ -66,7 +66,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
     screen.replaceChildren(
       screenHeader({
         title: 'Field checklist',
-        subtitle: `${session.extraction!.fields.length} fields · ${pct}% bhara`,
+        subtitle: `${session.extraction!.fields.length} fields · ${pct}% filled`,
         back: () => go('home'),
         right: (() => {
           const b = h('div', { class: 'row gap-6' });
@@ -87,10 +87,10 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
     const verifyBtn = h('button', { class: 'btn btn-primary flex1' });
     verifyBtn.innerHTML =
       session.verifyStatus === 'queued'
-        ? '⏳ Verify queue mein'
+        ? '⏳ Verify queued'
         : session.verifyStatus === 'done'
-          ? '☁️ Dobara verify karein'
-          : '☁️ Cloud verify chalayein';
+          ? '☁️ Verify again'
+          : '☁️ Run cloud verify';
     verifyBtn.addEventListener('click', () => go('verify', session.id));
     const resultBtn = h('button', { class: 'btn btn-secondary btn-sm' }, '📄 Answer sheet');
     resultBtn.addEventListener('click', () => go('result', session.id));
@@ -101,10 +101,10 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
   function filterRow(): HTMLElement {
     const wrap = h('div', { class: 'pill-tabs mb-12' });
     const opts: Array<{ k: typeof filter; label: string }> = [
-      { k: 'all', label: 'Sab' },
-      { k: 'red', label: 'Khali' },
-      { k: 'yellow', label: 'Dekh lein' },
-      { k: 'green', label: 'Theek' },
+      { k: 'all', label: 'All' },
+      { k: 'red', label: 'Empty' },
+      { k: 'yellow', label: 'Review' },
+      { k: 'green', label: 'Good' },
     ];
     for (const o of opts) {
       const b = h('button', { class: 'pill-tab', 'aria-selected': String(filter === o.k) }, o.label);
@@ -130,7 +130,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
       .filter((r) => filter === 'all' || r.lightVal === filter);
 
     if (rows.length === 0) {
-      list.append(h('div', { class: 'card empty' }, h('div', { class: 'text-sm' }, 'Is filter mein koi field nahi.')));
+      list.append(h('div', { class: 'card empty' }, h('div', { class: 'text-sm' }, 'No fields in this filter.')));
       return list;
     }
 
@@ -138,7 +138,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
       const row = h('button', { class: `field-row field-${lightVal}` });
       const valueHtml = a?.value
         ? `<div class="val">${escape(f.type === 'date' ? ddmm(a.value) : a.value)}</div>`
-        : `<div class="val muted-2">— khali${f.required ? ' (zaroori)' : ''} —</div>`;
+        : `<div class="val muted-2">- empty${f.required ? ' (required)' : ''} -</div>`;
 
       row.innerHTML = `
         <div class="row" style="padding-top:2px">${light(lightVal, { size: 'sm' })}</div>
@@ -158,7 +158,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
           <div class="row wrap gap-4 mt-2">
             ${a?.source === 'vault' ? badge({ kind: 'on-device', small: true, label: 'Vault' }) : ''}
             ${a?.cloudVerified ? badge({ kind: 'cloud', small: true }) : ''}
-            ${a?.suggestion ? `<span class="badge badge-fallback badge-sm"><span class="badge-ic">💡</span><span class="badge-tx">sudhar available</span></span>` : ''}
+            ${a?.suggestion ? `<span class="badge badge-fallback badge-sm"><span class="badge-ic">💡</span><span class="badge-tx">correction available</span></span>` : ''}
           </div>
         </div>
         <span aria-hidden="true" style="color:var(--ink-4)">›</span>
@@ -180,7 +180,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
       <div>
         <div class="label">Field</div>
         <div class="strong text-sm">${escape(field.label)}</div>
-        <div class="text-xs muted mt-2">${field.type}${field.required ? ' · zaroori' : ' · optional'}${field.hint ? ` · ${escape(field.hint)}` : ''}</div>
+        <div class="text-xs muted mt-2">${field.type}${field.required ? ' · required' : ' · optional'}${field.hint ? ` · ${escape(field.hint)}` : ''}</div>
       </div>
       ${
         verdict && verdict.status !== 'ok'
@@ -191,27 +191,27 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
       }
       ${
         verdict?.suggestedValue
-          ? `<button class="btn btn-saffron btn-sm" data-suggest>✨ Sudhar apnaayein: ${escape(verdict.suggestedValue)}</button>`
+          ? `<button class="btn btn-saffron btn-sm" data-suggest>✨ Apply correction: ${escape(verdict.suggestedValue)}</button>`
           : ''
       }
     `;
 
     const label = document.createElement('label');
     label.className = 'label';
-    label.textContent = 'Jawab';
+    label.textContent = 'Answer';
 
     let input: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
     if (field.type === 'select' && field.options?.length) {
       const sel = document.createElement('select');
       sel.className = 'select';
-      sel.innerHTML = `<option value="">— chunein —</option>${field.options
+      sel.innerHTML = `<option value="">- choose -</option>${field.options
         .map((o) => `<option ${a?.value === o ? 'selected' : ''}>${escape(o)}</option>`)
         .join('')}`;
       input = sel;
     } else if (field.type === 'checkbox') {
       const sel = document.createElement('select');
       sel.className = 'select';
-      sel.innerHTML = `<option value="">— chunein —</option><option ${a?.value ? 'selected' : ''}>Yes</option>`;
+      sel.innerHTML = `<option value="">- choose -</option><option ${a?.value ? 'selected' : ''}>Yes</option>`;
       input = sel;
     } else {
       const inp = document.createElement('input');
@@ -219,7 +219,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
       inp.type = field.type === 'date' ? 'date' : field.type === 'number' || field.type === 'phone' ? 'tel' : 'text';
       inp.inputMode = field.type === 'number' ? 'numeric' : field.type === 'phone' ? 'tel' : 'text';
       inp.value = field.type === 'date' ? isoFromDdmm(a?.value ?? '') : (a?.value ?? '');
-      inp.placeholder = field.type === 'date' ? '' : 'Yahan likhein';
+      inp.placeholder = field.type === 'date' ? '' : 'Type here';;
       input = inp;
     }
     body.append(label, input);
@@ -227,15 +227,15 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
     const meta = h('dl', { class: 'kv mt-8' });
     meta.innerHTML = `
       <dt>Light</dt><dd>${light(computeLight(field, a, { cloudFlagged: flaggedIds.has(fieldId) }), { withLabel: true })}</dd>
-      <dt>Source</dt><dd>${a?.source ?? '—'}</dd>
-      <dt>Author</dt><dd>${a?.author ?? '—'}</dd>
-      <dt>Confidence</dt><dd>${a ? `${Math.round(a.confidence * 100)}%` : '—'}</dd>
+      <dt>Source</dt><dd>${a?.source ?? '-'}</dd>
+      <dt>Author</dt><dd>${a?.author ?? '-'}</dd>
+      <dt>Confidence</dt><dd>${a ? `${Math.round(a.confidence * 100)}%` : '-'}</dd>
     `;
     body.append(meta);
 
     const footer = h('div', { class: 'row gap-8' });
-    const save = h('button', { class: 'btn btn-primary flex1' }, 'Save karein');
-    const sheet = openSheet({ title: 'Field theek karein', body, footer });
+    const save = h('button', { class: 'btn btn-primary flex1' }, 'Save');
+    const sheet = openSheet({ title: 'Edit field', body, footer });
 
     save.addEventListener('click', async () => {
       const raw = input.value.trim();
@@ -249,7 +249,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
       await saveSession(session, true);
       sheet.close();
       paint();
-      toast('Save ho gaya', { tone: 'success', ms: 1600 });
+      toast('Saved', { tone: 'success', ms: 1600 });
     });
 
     body.querySelector('[data-suggest]')?.addEventListener('click', async () => {
@@ -260,7 +260,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
       await saveSession(session, true);
       sheet.close();
       paint();
-      toast('Sudhar lag gaya ✓', { tone: 'success' });
+      toast('Correction applied ✓', { tone: 'success' });
     });
 
     footer.append(save);
@@ -271,29 +271,29 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
     const sheetBtn = h('button', { class: 'btn btn-secondary flex1' }, '📋 Copy');
     sheetBtn.addEventListener('click', async () => {
       const ok = await copyText(buildAnswerSheet(session));
-      toast(ok ? 'Answer sheet copy ho gayi' : 'Copy nahi ho paya', { tone: ok ? 'success' : 'error' });
+      toast(ok ? 'Answer sheet copied' : 'Copy failed', { tone: ok ? 'success' : 'error' });
     });
     const dl = h('button', { class: 'btn btn-ghost btn-sm' }, '⬇️');
     dl.title = 'Answer sheet download';
     dl.addEventListener('click', () => {
       downloadText(buildAnswerSheet(session), sheetFilename(session));
-      toast('Download shuru', { tone: 'success' });
+      toast('Download started', { tone: 'success' });
     });
     const img = h('button', { class: 'btn btn-ghost btn-sm' }, '🖼');
-    img.title = 'Form overlay dekhein';
+    img.title = 'View form overlay';
     img.addEventListener('click', () => void openOverlay());
     const del = h('button', { class: 'btn btn-ghost btn-sm' }, '🗑');
     del.title = 'Form delete';
     del.addEventListener('click', async () => {
       const ok = await confirmSheet({
-        title: 'Form delete karein?',
-        message: 'Form, photo aur iske jawab is phone se hat jayenge. Vault safe rahega.',
+        title: 'Delete form?',
+        message: 'Form, photo and its answers will be removed from this phone. Vault stays safe.',
         confirmLabel: 'Delete',
         danger: true,
       });
       if (ok) {
         await deleteSession(session.id);
-        toast('Delete ho gaya');
+        toast('Deleted');
         go('home');
       }
     });
@@ -304,7 +304,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
   async function openOverlay(): Promise<void> {
     const blob = await loadImageBlob(session.id);
     if (!blob) {
-      toast('Form ki photo nahi mili', { tone: 'warn' });
+      toast('Form photo not found', { tone: 'warn' });
       return;
     }
     const url = URL.createObjectURL(blob);
@@ -327,10 +327,10 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
       h(
         'p',
         { class: 'text-xs muted mt-8' },
-        'Rang = traffic light. Har box us field ka hai jo model ne padha — isliye aap check kar sakte hain ki model ne sahi jagah dekhi ya nahi.',
+        'Colour = traffic light. Each box is a field the model read - so you can check whether the model looked at the right place or not.',
       ),
     );
-    const sheet = openSheet({ title: 'Form par jawab', body });
+    const sheet = openSheet({ title: 'Answers on the form', body });
     sheet.root.addEventListener('click', (ev) => {
       if ((ev.target as HTMLElement).closest('[data-action="sheet-close"]')) URL.revokeObjectURL(url);
     });
@@ -340,7 +340,7 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
     return h(
       'p',
       { class: 'text-2xs muted-2 center-text mt-16' },
-      'Yeh checklist aapke phone par bani hai. 🔐 = Answer Vault se aaya, ☁️ = cloud ne verify kiya.',
+      'This checklist was built on your phone. 🔐 = from Answer Vault, ☁️ = verified by cloud.',
     );
   }
 
@@ -361,18 +361,18 @@ export async function renderChecklist(host: HTMLElement, sessionId?: string): Pr
 }
 
 function ddmm(iso: string): string {
-  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const m = iso.match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
 }
 function ddmmToIso(v: string): string {
-  const m = v.match(/^(\d{2})[/-](\d{2})[/-](\d{4})$/);
+  const m = v.match(/^(\\d{2})[/-](\\d{2})[/-](\\d{4})$/);
   return m ? `${m[3]}-${m[2]}-${m[1]}` : v;
 }
 function isoFromDdmm(v: string): string {
-  return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ddmmToIso(v);
+  return /^\\d{4}-\\d{2}-\\d{2}$/.test(v) ? v : ddmmToIso(v);
 }
 function escape(s: string): string {
-  return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  return String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]!);
 }
 
 export type { Answer, FormSession };

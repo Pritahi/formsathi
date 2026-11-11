@@ -11,7 +11,7 @@ export function getLastRouteLog(sessionId: string, task: RouteTask): RouteLogEnt
   return routerState.logs.find((l) => l.sessionId === sessionId && l.task === task && l.ok);
 }
 
-/** Any call, successful or not — used to show a queued/failed state. */
+/** Any call, successful or not - used to show a queued/failed state. */
 export function getLastRouteLogAny(sessionId: string, task: RouteTask): RouteLogEntry | undefined {
   return routerState.logs.find((l) => l.sessionId === sessionId && l.task === task);
 }

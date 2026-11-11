@@ -1,11 +1,11 @@
 /**
- * Cloud verify screen — MVP feature 4 and the demo's second act.
+ * Cloud verify screen - MVP feature 4 and the demo's second act.
  *
  * The flow the screen has to make obvious, in this order:
  *   1. the instruction page is what makes verification real (not generic advice)
- *   2. the payload is redacted — there is a button that shows exactly what
+ *   2. the payload is redacted - there is a button that shows exactly what
  *      will be sent, before anything is sent
- *   3. the result is per-field, in Hinglish, with a one-tap fix
+ *   3. the result is per-field, in English, with a one-tap fix
  *   4. if offline, it queues and says so honestly
  */
 
@@ -29,14 +29,14 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
   host.append(screen);
 
   if (!sessionId) {
-    screen.append(h('div', { class: 'card empty' }, 'Form nahi mila.'));
+    screen.append(h('div', { class: 'card empty' }, 'Form not found.'));
     return () => {};
   }
   const loaded = await loadSession(sessionId);
   if (!loaded || !loaded.extraction) {
     screen.append(
       screenHeader({ title: 'Cloud verify', back: () => go('home') }),
-      h('div', { class: 'card empty' }, 'Pehle form add karein.'),
+      h('div', { class: 'card empty' }, 'Add a form first.'),
     );
     return () => {};
   }
@@ -57,7 +57,7 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
     screen.replaceChildren(
       screenHeader({
         title: 'Cloud verify',
-        subtitle: 'Official instruction page se milaan',
+        subtitle: 'Match against the official instruction page',
         back: () => go('checklist', session.id),
       }),
       statusCard(),
@@ -74,7 +74,7 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
     const counts = countsFor(session);
     const wrap = h('div', { class: 'row gap-8 mb-12' });
     wrap.innerHTML = `${lightCounts(counts)}<span class="text-xs muted">${
-      session.verifyStatus === 'queued' ? '· verify queue mein' : session.verify ? '· verified' : ''
+      session.verifyStatus === 'queued' ? '· verify queued' : session.verify ? '· verified' : ''
     }</span>`;
     return wrap;
   }
@@ -87,18 +87,16 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
         <div class="row gap-8" style="min-width:0">
           <span class="avatar" aria-hidden="true">📋</span>
           <div style="min-width:0">
-            <div class="card-title">Form ke official instructions</div>
-            <div class="text-xs muted">${
-              has ? `${session.instructionText!.trim().split(/\s+/).length} shabd padhe gaye` : 'Abhi add nahi kiye'
-            }</div>
+            <div class="card-title">Form\'s official instructions</div>
+            <div class="text-xs muted">${has ? session.instructionText!.trim().split(/\\s+/).length + ' words read' : 'Not added yet'}</div>
           </div>
         </div>
         ${has ? badge({ kind: 'on-device', small: true, label: 'Ready' }) : ''}
       </div>
       <p class="text-xs muted mt-8">${
         has
-          ? 'Verify inhi lines se hoga — generic salah nahi. Isliye "income saalana likhein" jaisi galti pakdi jaati hai.'
-          : 'Instruction page ki photo lein (ya sample use karein). Iske bina cloud sirf format check kar sakta hai, scheme ke rules nahi.'
+          ? 'Verify will happen against these lines - not generic advice. That is how a mistake like "write monthly income" gets caught.'
+          : 'Take a photo of the instruction page (or use the sample). Without it, cloud can only check format, not the scheme\'s rules.'
       }</p>
     `;
 
@@ -124,24 +122,24 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
       <div class="row between">
         <div class="row gap-8">
           <span aria-hidden="true">🔒</span>
-          <b class="text-sm">Cloud ko kya jayega</b>
+          <b class="text-sm">What goes to the cloud</b>
         </div>
-        <button class="text-xs strong" style="background:none;border:0;color:var(--green-700);cursor:pointer" id="peek">Dekhein →</button>
+        <button class="text-xs strong" style="background:none;border:0;color:var(--green-700);cursor:pointer" id="peek">View →</button>
       </div>
       <p class="text-xs muted mt-8">${
         report.redactedFieldIds.length > 0
-          ? `<b>${report.redactedFieldIds.length} personal field</b> bhejne se pehle chhupa diye jayenge (Aadhaar, mobile, address jaise). Cloud ko sirf inka format dikhega.`
-          : 'Is form mein koi sensitive field nahi mila — sirf labels, formats aur instruction page jayega.'
+          ? `<b>${report.redactedFieldIds.length} personal field(s)</b> hidden before sending (Aadhaar, mobile, address and similar). The cloud sees only their format.`
+          : 'No sensitive field found in this form - only labels, formats and the instruction page will be sent.'
       }</p>
     `;
     card.querySelector('#peek')?.addEventListener('click', () => {
       const body = h('div', { class: 'col gap-8' });
       const receipt = receiptFor(session.id);
       body.innerHTML = `
-        <p class="text-sm muted">Yeh <b>exactly</b> wahi payload hai jo cloud model ko jayega. ${receipt ? '' : 'Verify chalane ke baad yahan poora receipt bhi milega.'}</p>
+        <p class="text-sm muted">This is <b>exactly</b> the payload that will go to the cloud model. ${receipt ? '' : 'The full receipt will also appear here after verify runs.'}</p>
         <pre class="code">${escapeHtml(JSON.stringify(payload, null, 2))}</pre>
         ${receipt ? `<div class="label mt-8">Receipt</div><pre class="code">${escapeHtml(receipt)}</pre>` : ''}
-        <div class="note note-ok"><span>✓</span><div>Aapke identity values — Aadhaar, mobile, bank account, address, pincode — is payload mein <b>kahin nahi</b> hain. Unki jagah device par bane <b>format facts</b> hain (jaise <code>digits=12, has-plus-prefix</code>), jinse cloud galti pakad sakta hai bina number dekhe.</div></div>
+        <div class="note note-ok"><span>✓</span><div>Your identity values - Aadhaar, mobile, bank account, address, pincode - are <b>nowhere</b> in this payload. In their place are device-computed <b>format facts</b> (such as <code>digits=12, has-plus-prefix</code>), so cloud can catch mistakes without ever seeing the number itself.</div></div>
       `;
       openSheet({ title: 'Cloud payload', subtitle: 'Redaction proof', body });
     });
@@ -155,20 +153,20 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
     const info = h('div', { class: `note ${has ? '' : 'note-warn'}` });
     info.innerHTML = `<span>${has ? '☁️' : '⚠️'}</span><div>${
       has
-        ? 'Cloud model aapke bharay hue form ko official instructions se milayega, galtiyan Hinglish mein samjhayega, aur sudhar suggest karega.'
-        : 'Instruction page add nahi kiya. Verify sirf format check karega (income figures mein hai ya nahi, mobile 10 digit hai ya nahi) — scheme ke rules nahi.'
+        ? 'The cloud model will match your filled form against the official instructions, explain mistakes in English, and suggest fixes.'
+        : 'You have not added an instruction page. Verify will only check format (is income in figures, is the mobile 10 digits) - not the scheme\'s rules.'
     }</div>`;
 
-    const btn = h('button', { class: 'btn btn-primary btn-lg btn-block' }, '☁️ Verify shuru karein');
+    const btn = h('button', { class: 'btn btn-primary btn-lg btn-block' }, '☁️ Start verify');
     btn.addEventListener('click', () => void doVerify());
 
     const demoRow = h('div', { class: 'row gap-8 mt-8' });
-    demoRow.innerHTML = `<span class="text-xs muted">Demo galti:</span>`;
+    demoRow.innerHTML = `<span class="text-xs muted">Demo mistake:</span>`;
     const profiles: Array<{ k: 'income-monthly' | 'plus91' | 'wrong-ifsc' | 'clean'; label: string }> = [
       { k: 'income-monthly', label: 'monthly income' },
       { k: 'plus91', label: '+91 mobile' },
-      { k: 'wrong-ifsc', label: 'galat IFSC' },
-      { k: 'clean', label: 'sab theek' },
+      { k: 'wrong-ifsc', label: 'wrong IFSC' },
+      { k: 'clean', label: 'all fine' },
     ];
     for (const p of profiles) {
       const chip = h(
@@ -190,7 +188,7 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
         h(
           'p',
           { class: 'text-2xs muted mt-2' },
-          'DEMO MODE mein verify mock cloud se aata hai — lekin wahi rule engine chalata hai jo asli model ko diya jata hai. "monthly income" chun kar dekhein: income 5000 likhi ho to verify pakad lega.',
+          'In DEMO MODE verify comes from a mock cloud - but it runs the same rule engine given to the live model. Choose "monthly income": if you wrote 5000 as income, verify will catch it.',
         ),
       );
       card.append(demoRow);
@@ -202,9 +200,9 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
     const card = h('div', { class: 'card' });
     card.innerHTML = `
       <div class="row gap-8">${badge({ kind: 'cloud' })}${state.settings.demoMode ? badge({ kind: 'demo' }) : ''}</div>
-      <p class="text-sm mt-8">Cloud model instructions padh raha hai aur aapke jawabon se milaan kar raha hai…</p>
+      <p class="text-sm mt-8">The cloud model is reading the instructions and matching them against your answers…</p>
       <div class="progress progress-indeterminate mt-12"><i style="width:40%"></i></div>
-      <p class="text-2xs muted mt-8">Is step mein internet chahiye. Personal values redact hain — cloud unhe nahi dekh raha.</p>
+      <p class="text-2xs muted mt-8">This step needs internet. Personal values are redacted - the cloud does not see them.</p>
     `;
     return card;
   }
@@ -219,7 +217,7 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
     if (!rule) return null;
     const r = rule.trim();
     if (!r) return null;
-    if (/^instruction\s*\d+/i.test(r)) return null;
+    if (/^instruction\\s*\\d+/i.test(r)) return null;
     if (/incomplete applications? rejected/i.test(r)) return null;
     return r;
   }
@@ -247,9 +245,9 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
         row.innerHTML = `
           <div class="row between gap-8">
             <b class="text-sm">${escape(field?.label ?? issue.fieldId)}</b>
-            <span class="badge ${issue.status === 'fix' ? 'badge-fallback' : 'badge-queued'} badge-sm">
+            <span class="badge ${issue.status === 'fix' ? 'badge-fallback' : 'badge-queued'} badge-sm\">
               <span class="badge-ic">${issue.status === 'fix' ? '✗' : '!'}</span>
-              <span class="badge-tx">${issue.status === 'fix' ? 'theek karein' : 'dekh lein'}</span>
+              <span class="badge-tx">${issue.status === 'fix' ? 'Fix' : 'Review'}</span>
             </span>
           </div>
           <p class="text-xs mt-8" style="line-height:1.5">${escape(issue.reason ?? '')}</p>
@@ -261,7 +259,7 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
           ${
             issue.suggestedValue
               ? `<div class="row gap-8 mt-8">
-                   <button class="btn btn-saffron btn-sm flex1" data-accept="${escape(issue.suggestedValue)}">✨ ${escape(issue.suggestedValue)} apnaayein</button>
+                   <button class="btn btn-saffron btn-sm flex1" data-accept="${escape(issue.suggestedValue)}">✨ Apply ${escape(issue.suggestedValue)}</button>
                  </div>`
               : ''
           }
@@ -272,21 +270,21 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
           session.verify!.verdicts = session.verify!.verdicts.filter((x) => x.fieldId !== issue.fieldId);
           await saveSession(session, true);
           paint();
-          toast('Sudhar lag gaya ✓ Ab light green ho gayi.', { tone: 'success' });
+          toast('Correction applied ✓ Light is green now.', { tone: 'success' });
         });
         list.append(row);
       }
       card.append(list);
     } else {
       const ok = h('div', { class: 'note note-ok' });
-      ok.innerHTML = '<span>✓</span><div>Cloud verify ko koi galti nahi mili. Instructions se sab match kar raha hai.</div>';
+      ok.innerHTML = '<span>✓</span><div>Cloud verify found no mistakes. Everything matches the instructions.</div>';
       card.append(ok);
     }
 
     if (v.instructionsUsed?.length) {
       const used = h('div', { class: 'card-flat' });
       used.innerHTML = `
-        <b class="text-sm">Kaunsi instructions use hui</b>
+        <b class="text-sm">Which instructions were used</b>
         <ul class="text-xs muted mt-8" style="padding-left:16px;line-height:1.6">
           ${v.instructionsUsed.map((u) => `<li>${escape(u)}</li>`).join('')}
         </ul>
@@ -322,24 +320,24 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
       // In DEMO we have the text; in live mode the real model reads the image.
       session.instructionText = SAMPLE_INSTRUCTION_TEXT;
       await saveSession(session, true);
-      toast('Sample instructions add ho gaye', { tone: 'success' });
+      toast('Sample instructions added', { tone: 'success' });
       paint();
     } catch {
-      toast('Sample load nahi hua', { tone: 'error' });
+      toast('Sample failed to load', { tone: 'error' });
     }
   }
 
   async function usePhotoInstructions(file: File): Promise<void> {
     try {
-      toast('Instruction page padha ja raha hai…', { tone: 'info' });
+      toast('Reading the instruction page…', { tone: 'info' });
       const processed = await processFile(file, false);
 
       // The instruction page carries no personal data, so OCR-ing it in the
-      // cloud is both safe and better: Nano's small-print OCR is weak, and this
+      // cloud is both safe and better: Nano\'s small-print OCR is weak, and this
       // is exactly the kind of long-text reading the bigger model is for.
       if (state.settings.demoMode) {
         session.instructionText = SAMPLE_INSTRUCTION_TEXT;
-        toast('DEMO: sample instructions use kiye gaye', { tone: 'info' });
+        toast('DEMO: sample instructions used', { tone: 'info' });
       } else {
         const { callModel } = await import('../../ai/firebaseAi');
         const { FIREBASE_CONFIG } = await import('../../config/config');
@@ -351,12 +349,12 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
           temperature: 0,
         });
         session.instructionText = out.text.trim();
-        toast('Instructions padh liye', { tone: 'success' });
+        toast('Instructions read', { tone: 'success' });
       }
       await saveSession(session, true);
       paint();
     } catch {
-      toast('Instruction page padha nahi ja saka', { tone: 'error' });
+      toast('Instruction page could not be read', { tone: 'error' });
     }
   }
 
@@ -370,21 +368,21 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
       running = false;
       paint();
       if (out.queued) {
-        toast('Net nahi hai — verify queue mein daal diya. Net aate hi apne aap chalega.', {
+        toast('No internet - verify has been queued. It will run automatically when the network returns.', {
           tone: 'warn',
           ms: 5200,
         });
       } else {
         const issues = out.result.verdicts.filter((v) => v.status !== 'ok').length;
         toast(
-          issues > 0 ? `Verify ho gaya — ${issues} field par dhyan dein` : 'Verify ho gaya — sab theek hai ✓',
+          issues > 0 ? `Verify done - ${issues} field(s) need your attention.` : 'Verify done - all clear ✓',
           { tone: issues > 0 ? 'warn' : 'success' },
         );
       }
     } catch (err) {
       running = false;
       paint();
-      toast(err instanceof Error ? err.message : 'Verify fail ho gaya', { tone: 'error' });
+      toast(err instanceof Error ? err.message : 'Verify failed', { tone: 'error' });
     }
   }
 
@@ -408,9 +406,9 @@ export async function renderVerify(host: HTMLElement, sessionId?: string): Promi
   return () => unsub();
 }
 
-/** Verbatim OCR of the bundled instruction page — used in DEMO MODE so the
+/** Verbatim OCR of the bundled instruction page - used in DEMO MODE so the
  *  verify prompt is built from real instruction text rather than a stub. */
-export const SAMPLE_INSTRUCTION_TEXT = `POST MATRIC SCHOLARSHIP 2026-27 — Instructions for filling the application form
+export const SAMPLE_INSTRUCTION_TEXT = `POST MATRIC SCHOLARSHIP 2026-27 - Instructions for filling the application form
 1. Eligibility: applicant must belong to SC, ST or OBC category and have an annual family income of Rs. 2,50,000 or less from all sources.
 2. Income must be written as ANNUAL family income, in figures only. Do not write monthly income and do not write the amount in words. Applications showing monthly income will be rejected.
 3. Date of birth must be in DD/MM/YYYY format exactly as printed on the matriculation certificate.
@@ -424,7 +422,7 @@ export const SAMPLE_INSTRUCTION_TEXT = `POST MATRIC SCHOLARSHIP 2026-27 — Inst
 11. Last date for submission: 31 January 2027. Late applications will not be considered.`;
 
 function escape(s: string): string {
-  return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  return String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]!);
 }
 function escapeHtml(s: string): string {
   return escape(s);

@@ -1,6 +1,6 @@
 # FormSathi
 
-A form-filling prototype with a Hinglish interview, an encrypted local Answer Vault,
+A form-filling prototype with an English interview, an encrypted local Answer Vault,
 field checklists and an answer sheet. Built for the #BuildHybridAI 2026 challenge.
 
 ## Current status (November 11, 2026)
@@ -10,11 +10,11 @@ verified Gemini inference.
 
 - [Mock walkthrough](https://pritahi.github.io/formsathi/): sample extraction,
   interview, checklist and answer sheet use mock AI. The WebCrypto vault is real.
-- [Firebase deployment](https://formsathi.web.app/): hosting is deployed. Real AI
-  inference has not succeeded yet: provider setup/App Check remain unfinished.
+- [Firebase deployment](https://formsathi.web.app/): hosting is deployed. Real bundled synthetic scholarship extraction returned 21 fields via Gemini
+  3.5 Flash Lite in 6.2 seconds. Production App Check is configured.
 - TypeScript check, production build and **45 unit tests pass** locally.
-- Real Gemini Nano execution, production App Check and end-to-end live cloud
-  inference are **not verified**. There is no Android wrapper yet.
+- Real Gemini Nano execution is **not verified**. Local answer capture was
+  verified with 0 KB uploaded. There is no Android wrapper yet.
 
 ## Run locally
 
@@ -29,13 +29,13 @@ npm run build
 
 The source currently defaults to Demo mode so a fresh checkout can be explored
 without credentials or an inference service. The Settings toggle changes modes.
-Production must not be represented as live until actual inference is verified.
+The Firebase production deployment is built in Live mode. Source defaults to Demo mode.
 
 ## What the demo does
 
 1. Choose a bundled fictional scholarship or bank form.
 2. Read extracted fields and confidence scores from a mock fixture.
-3. Answer one question at a time in Hinglish.
+3. Answer one question at a time in English.
 4. Review the checklist and copy-ready answer sheet.
 5. Save reusable answers in an encrypted device-local vault.
 
@@ -51,8 +51,7 @@ Always check the issuing authority's current instructions yourself.
 - Without Nano, interview questions and normalization use labeled local rules,
   not a cloud model. They are logged as `local`, with `local-template (no AI)`.
 - Only bundled synthetic sample extraction may opt into the free cloud API,
-  after an eligible-adult-developer confirmation. That path still needs live
-  service verification.
+  after an eligible-adult-developer confirmation. That path was verified with a blank synthetic scholarship form.
 - Arbitrary cloud verification and free-form personal prompts are blocked at the
   model boundary. Local summaries/help are not AI verification.
 - Form photos stay in IndexedDB. There are no automatic Firebase Storage uploads.

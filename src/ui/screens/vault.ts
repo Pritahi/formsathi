@@ -1,5 +1,5 @@
 /**
- * Answer Vault screen — MVP feature 3's user-facing half.
+ * Answer Vault screen - MVP feature 3's user-facing half.
  *
  * The point of this screen in the demo is one number: how many fields the vault
  * can already answer on the NEXT form. So the header shows exactly that, and
@@ -53,7 +53,7 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
 
   const paint = (): void => {
     screen.replaceChildren(
-      screenHeader({ title: 'Answer Vault', subtitle: 'Aapke jawab, aapke phone mein, encrypted' }),
+      screenHeader({ title: 'Answer Vault', subtitle: 'Your answers, on your phone, encrypted' }),
       ...(hasWebCrypto() ? [] : [cryptoWarning()]),
       !state.vaultPresent ? setupCard() : !state.vaultUnlocked ? unlockCard() : openVault(),
       securityCard(),
@@ -68,47 +68,47 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
       'div',
       { class: 'note note-danger mb-12' },
       h('span', {}, '⚠️'),
-      h('div', {}, 'Is browser mein WebCrypto nahi hai (HTTPS zaroori hai). Vault yahan kaam nahi karega — par form bharna chalta rahega.'),
+      h('div', {}, 'This browser has no WebCrypto (HTTPS is required). The Vault will not work here - but form filling still works.'),
     );
   }
 
   function setupCard(): HTMLElement {
     const card = h('div', { class: 'card mb-12' });
     card.innerHTML = `
-      <div class="card-title">Vault banayein</div>
-      <p class="text-sm muted mt-8">Ek baar apna naam, DOB, address, category bhar dein. Aage jo bhi form aayega, woh apne aap bhar jayega — kyunki jawab aapke phone mein encrypted rehte hain, kisi server par nahi.</p>
+      <div class="card-title">Create vault</div>
+      <p class="text-sm muted mt-8">Enter your name, DOB, address, category once. Every form after that will fill itself automatically - because answers stay encrypted on your phone, not on any server.</p>
     `;
 
     const passWrap = h('div', { class: 'mt-12' });
     passWrap.innerHTML = `
-      <label class="label" for="vault-pass">Passphrase (kam se kam 6 characters)</label>
-      <input class="input" id="vault-pass" type="password" autocomplete="new-password" placeholder="Yaad rakhne wala password" />
-      <p class="hint">💡 Isse aapka vault key banta hai. Hum ise kabhi save nahi karte — bhool gaye to jawab dobara bharne padenge.</p>
+      <label class="label" for="vault-pass">Passphrase (at least 6 characters)</label>
+      <input class="input" id="vault-pass" type="password" autocomplete="new-password" placeholder="A password you will remember" />
+      <p class="hint">💡 This becomes your vault key. We never save it - forget it and you will have to re-enter answers.</p>
     `;
 
     const row = h('div', { class: 'col gap-8 mt-12' });
-    const createPass = h('button', { class: 'btn btn-primary btn-block' }, '🔐 Passphrase se vault banayein');
+    const createPass = h('button', { class: 'btn btn-primary btn-block' }, '🔐 Create vault with passphrase');
     createPass.addEventListener('click', async () => {
       const pw = (passWrap.querySelector('#vault-pass') as HTMLInputElement).value;
       try {
         await createVault({ mode: 'passphrase', passphrase: pw });
         state.vaultUnlocked = true;
-        toast('Vault ban gaya — ab jawab save honge', { tone: 'success' });
+        toast('Vault created - answers will now be saved', { tone: 'success' });
         await refresh();
         notify();
       } catch (err) {
-        toast(err instanceof Error ? err.message : 'Vault nahi bana', { tone: 'error' });
+        toast(err instanceof Error ? err.message : 'Vault could not be created', { tone: 'error' });
       }
     });
 
-    const quick = h('button', { class: 'btn btn-secondary btn-block' }, '⚡ Bina passphrase (is device par)');
+    const quick = h('button', { class: 'btn btn-secondary btn-block' }, '⚡ No passphrase (on this device)');
     quick.addEventListener('click', () => {
       void (async () => {
         const ok = await confirmSheet({
-          title: 'Bina passphrase?',
+          title: 'No passphrase?',
           message:
-            'Key is device par hi rehti hai (non-extractable CryptoKey). Demo aur cyber-cafe ke liye aasan hai, lekin phone kisi aur ke haath lage to vault khul sakta hai. Asli istemal ke liye passphrase behtar hai.',
-          confirmLabel: 'Aage badhein',
+            'The key stays on this device only (a non-extractable CryptoKey). Easy for demos and shared computers, but if your phone ends up in someone else\'s hands the vault can be opened. For real use, a passphrase is better.',
+          confirmLabel: 'Continue',
         });
         if (!ok) return;
         try {
@@ -118,14 +118,14 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
           await refresh();
           notify();
         } catch (err) {
-          toast(err instanceof Error ? err.message : 'Vault nahi bana', { tone: 'error' });
+          toast(err instanceof Error ? err.message : 'Vault could not be created', { tone: 'error' });
         }
       })();
     });
 
-    const seed = h('button', { class: 'btn btn-ghost btn-block' }, '🎬 Demo data se bharein');
+    const seed = h('button', { class: 'btn btn-ghost btn-block' }, '🎬 Fill with demo data');
     seed.addEventListener('click', () => void seedDemo());
-    seed.title = 'Sample answers — demo ke liye';
+    seed.title = 'Sample answers - for demo';
 
     row.append(createPass, quick, seed);
     card.append(passWrap, row);
@@ -137,23 +137,23 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
     const card = h('div', { class: 'card mb-12' });
     card.innerHTML = `
       <div class="row gap-8 mb-8"><span class="avatar">🔒</span><div>
-        <div class="card-title">Vault locked hai</div>
-        <div class="text-xs muted">${meta === 'passphrase' ? 'Passphrase daal kar unlock karein' : 'Device key se unlock'}</div>
+        <div class="card-title">Vault is locked</div>
+        <div class="text-xs muted">${meta === 'passphrase' ? 'Unlock with your passphrase' : 'Unlock with the device key'}</div>
       </div></div>
     `;
 
     if (meta === 'passphrase') {
       const input = h('input', { class: 'input mt-8', type: 'password', placeholder: 'Passphrase', autocomplete: 'current-password' }) as HTMLInputElement;
-      const btn = h('button', { class: 'btn btn-primary btn-block mt-8' }, 'Unlock karein');
+      const btn = h('button', { class: 'btn btn-primary btn-block mt-8' }, 'Unlock');
       const doUnlock = async () => {
         const ok = await unlockVault(input.value);
         if (ok) {
           state.vaultUnlocked = true;
-          toast('Vault khul gaya', { tone: 'success' });
+          toast('Vault unlocked', { tone: 'success' });
           await refresh();
           notify();
         } else {
-          toast('Passphrase galat hai', { tone: 'error' });
+          toast('Wrong passphrase', { tone: 'error' });
         }
       };
       btn.addEventListener('click', () => void doUnlock());
@@ -162,12 +162,12 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
       });
       card.append(input, btn);
     } else {
-      const btn = h('button', { class: 'btn btn-primary btn-block mt-8' }, 'Unlock karein');
+      const btn = h('button', { class: 'btn btn-primary btn-block mt-8' }, 'Unlock');
       btn.addEventListener('click', async () => {
         const { unlockQuick } = await import('../../vault/vault');
         const ok = await unlockQuick();
         state.vaultUnlocked = ok;
-        if (ok) toast('Vault khul gaya', { tone: 'success' });
+        if (ok) toast('Vault unlocked', { tone: 'success' });
         await refresh();
         notify();
       });
@@ -184,9 +184,9 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
     stat.innerHTML = `
       <div class="row between">
         <div>
-          <div class="text-2xs strong muted" style="text-transform:uppercase;letter-spacing:.05em">Vault mein</div>
+          <div class="text-2xs strong muted" style="text-transform:uppercase;letter-spacing:.05em">In vault</div>
           <div style="font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.1">${records.length}</div>
-          <div class="text-xs muted">jawab · agla form inhe apne aap bharega</div>
+          <div class="text-xs muted">answers · the next form will fill them automatically</div>
         </div>
         <div class="col gap-6" style="align-items:flex-end">
           <span class="badge badge-device"><span class="badge-ic">📱</span><span class="badge-tx">On-device only</span></span>
@@ -197,18 +197,18 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
     wrap.append(stat);
 
     const tools = h('div', { class: 'row wrap gap-8' });
-    const reveal = h('button', { class: 'btn btn-ghost btn-sm' }, revealAll ? '🙈 Chhupayein' : '👁 Dikhayein');
+    const reveal = h('button', { class: 'btn btn-ghost btn-sm' }, revealAll ? '🙈 Hide' : '👁 Reveal');
     reveal.addEventListener('click', () => {
       revealAll = !revealAll;
       paint();
     });
-    const addBtn = h('button', { class: 'btn btn-secondary btn-sm' }, '➕ Jawab jodein');
+    const addBtn = h('button', { class: 'btn btn-secondary btn-sm' }, '➕ Add answer');
     addBtn.addEventListener('click', () => openAddSheet());
     const lockBtn = h('button', { class: 'btn btn-ghost btn-sm' }, '🔒 Lock');
     lockBtn.addEventListener('click', () => {
       lockVault();
       state.vaultUnlocked = false;
-      toast('Vault lock ho gaya');
+      toast('Vault locked');
       void refresh();
       notify();
     });
@@ -226,9 +226,9 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
           'div',
           { class: 'card empty' },
           h('span', { class: 'ic' }, '🗂'),
-          h('div', { class: 'text-sm' }, 'Vault khali hai.'),
-          h('div', { class: 'text-xs muted mt-2' }, 'Interview mein diye jawab apne aap yahan aa jayenge.'),
-          h('button', { class: 'btn btn-primary btn-sm mt-12', onclick: () => go('intake', 'samples') }, 'Sample form bharein'),
+          h('div', { class: 'text-sm' }, 'Vault is empty.'),
+          h('div', { class: 'text-xs muted mt-2' }, 'Answers you give in the interview will appear here automatically.'),
+          h('button', { class: 'btn btn-primary btn-sm mt-12', onclick: () => go('intake', 'samples') }, 'Fill a sample form'),
         ),
       );
       return wrap;
@@ -245,7 +245,7 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
             <div class="text-sm strong" style="word-break:break-word">${escape(shown)}</div>
             <div class="row wrap gap-4 mt-2">
               ${r.sensitive ? `<span class="badge badge-fallback badge-sm"><span class="badge-ic">🔒</span><span class="badge-tx">sensitive</span></span>` : ''}
-              ${r.uses > 0 ? `<span class="text-2xs muted">${r.uses}× form bhara</span>` : `<span class="text-2xs muted">abhi use nahi hua</span>`}
+              ${r.uses > 0 ? `<span class="text-2xs muted">${r.uses}× form filled</span>` : `<span class="text-2xs muted">not used yet</span>`}
             </div>
           </div>
           <button class="icon-btn sm ghost" data-del aria-label="Delete">🗑</button>
@@ -253,14 +253,14 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
       `;
       row.querySelector('[data-del]')?.addEventListener('click', async () => {
         const ok = await confirmSheet({
-          title: 'Jawab hataayein?',
-          message: `"${r.label}" vault se hat jayega. Purane forms par koi asar nahi padega.`,
-          confirmLabel: 'Hataayein',
+          title: 'Delete answer?',
+          message: `"${r.label}" will be removed from the vault. Old forms are not affected.`,
+          confirmLabel: 'Delete',
           danger: true,
         });
         if (ok) {
           await deleteAnswer(r.id);
-          toast('Hata diya');
+          toast('Deleted');
           await refresh();
         }
       });
@@ -273,21 +273,21 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
   function securityCard(): HTMLElement {
     const card = h('div', { class: 'card-flat mt-12' });
     card.innerHTML = `
-      <b class="text-sm">🔐 Andar se kya hota hai</b>
+      <b class="text-sm">🔐 What happens inside</b>
       <dl class="kv mt-8">
         <dt>Algorithm</dt><dd>${VAULT_CRYPTO_PARAMS.algorithm} ${VAULT_CRYPTO_PARAMS.keyBits}-bit</dd>
         <dt>Key derivation</dt><dd>${VAULT_CRYPTO_PARAMS.kdf} · ${VAULT_CRYPTO_PARAMS.iterations.toLocaleString('en-IN')} rounds</dd>
-        <dt>Per-record IV</dt><dd>${VAULT_CRYPTO_PARAMS.ivBytes} bytes, har jawab ke liye naya</dd>
-        <dt>Storage</dt><dd>IndexedDB, sirf ciphertext</dd>
-        <dt>Server</dt><dd>Kuch nahi — Firestore mein jawab kabhi nahi jate</dd>
+        <dt>Per-record IV</dt><dd>${VAULT_CRYPTO_PARAMS.ivBytes} bytes, a new one for every answer</dd>
+        <dt>Storage</dt><dd>IndexedDB, ciphertext only</dd>
+        <dt>Server</dt><dd>Nothing - answers never go to Firestore</dd>
         ${storage ? `<dt>Device storage</dt><dd>${formatBytes(storage.usage)} / ${formatBytes(storage.quota)}</dd>` : ''}
       </dl>
       <p class="text-2xs muted mt-8" style="line-height:1.6">
-        <b>Sach bhi:</b> yeh browser ke andar ka encryption hai. Agar koi malicious app ya script aapke browser mein chal raha ho
-        jab vault khula hai, to woh jawab padh sakta hai. Server-side data leak se yeh aapko bachata hai — aapke phone par
-        pade malware se nahi. Isliye passphrase mode recommend karte hain.
+        <b>The honest truth:</b> this is encryption inside the browser. If a malicious app or script is running
+        in your browser while the vault is unlocked, it can read the answers. It protects against server-side
+        data leaks - not against malware on your phone. That is why we recommend passphrase mode.
       </p>
-      <button class="btn btn-ghost btn-sm mt-8" id="prove">🔬 Ciphertext dikhayein</button>
+      <button class="btn btn-ghost btn-sm mt-8" id="prove">🔬 Show ciphertext</button>
     `;
     card.querySelector('#prove')?.addEventListener('click', () => void showCiphertext());
     return card;
@@ -297,21 +297,21 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
     const sealed = await idb.all<{ id: string; ciphertext: string; iv: string; sensitive: boolean }>(STORE.vault);
     const body = h('div', { class: 'col gap-8' });
     body.innerHTML = `
-      <p class="text-sm muted">Yeh woh hai jo is waqt aapke phone ke IndexedDB mein pada hai. Dhyan se dekhein — koi naam, koi number, kuch bhi padhne layak nahi.</p>
+      <p class="text-sm muted">This is what sits in your phone\'s IndexedDB right now. Look closely - no name, no number, nothing readable.</p>
       <pre class="code" style="max-height:40vh">${escape(
         sealed
           .slice(0, 3)
           .map((s) => JSON.stringify({ id: s.id, iv: s.iv, ciphertext: `${s.ciphertext.slice(0, 64)}…` }, null, 2))
-          .join('\n\n') || 'Vault khali hai',
+          .join('\\n\\n') || 'Vault is empty',
       )}</pre>
-      <div class="note note-ok"><span>✓</span><div>${sealed.length} records — sab ciphertext. Server par kuch nahi bheja gaya.</div></div>
+      <div class="note note-ok"><span>✓</span><div>${sealed.length} records - all ciphertext. Nothing was sent to the server.</div></div>
     `;
-    openSheet({ title: 'IndexedDB mein kya pada hai', body });
+    openSheet({ title: 'What lies in IndexedDB', body });
   }
 
   async function seedDemo(): Promise<void> {
     if (!state.vaultUnlocked) {
-      toast('Pehle vault banayein/unlock karein', { tone: 'warn' });
+      toast('Create or unlock the vault first', { tone: 'warn' });
       return;
     }
     for (const item of SAMPLE_VAULT_SEED) {
@@ -322,7 +322,7 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
         sensitive: isSensitiveField(item.label),
       });
     }
-    toast(`${SAMPLE_VAULT_SEED.length} demo jawab vault mein aa gaye`, { tone: 'success' });
+    toast(`${SAMPLE_VAULT_SEED.length} demo answers added to the vault`, { tone: 'success' });
     await refresh();
   }
 
@@ -330,23 +330,23 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
     const body = h('div', { class: 'col gap-10' });
     body.innerHTML = `
       <div><label class="label" for="v-label">Label</label>
-      <input class="input" id="v-label" placeholder="Jaise: Date of Birth" /></div>
-      <div><label class="label" for="v-value">Jawab</label>
-      <input class="input" id="v-value" placeholder="Jawab likhein" /></div>
-      <p class="text-2xs muted">Label wahi rakhein jo form par likha hota hai — tab hi agla form ise pehchan payega.</p>
+      <input class="input" id="v-label" placeholder="e.g. Date of Birth" /></div>
+      <div><label class="label" for="v-value">Answer</label>
+      <input class="input" id="v-value" placeholder="Type the answer" /></div>
+      <p class="text-2xs muted">Keep the label the same as it is printed on the form - only then will the next form recognize it.</p>
     `;
-    const save = h('button', { class: 'btn btn-primary btn-block' }, 'Vault mein save karein');
-    const sheet = openSheet({ title: 'Naya jawab', body, footer: save });
+    const save = h('button', { class: 'btn btn-primary btn-block' }, 'Save to vault');
+    const sheet = openSheet({ title: 'New answer', body, footer: save });
     save.addEventListener('click', async () => {
       const label = (body.querySelector('#v-label') as HTMLInputElement).value.trim();
       const value = (body.querySelector('#v-value') as HTMLInputElement).value.trim();
       if (!label || !value) {
-        toast('Label aur jawab dono chahiye', { tone: 'warn' });
+        toast('Both label and answer are needed', { tone: 'warn' });
         return;
       }
       await putAnswer({ id: canonicalKeyFor(label), label, value, sensitive: isSensitiveField(label) });
       sheet.close();
-      toast('Save ho gaya', { tone: 'success' });
+      toast('Saved', { tone: 'success' });
       await refresh();
     });
   }
@@ -358,31 +358,31 @@ export async function renderVault(host: HTMLElement): Promise<() => void> {
       h(
         'button',
         { class: 'btn btn-ghost btn-sm', onclick: () => go('how') },
-        '🔐 Encryption ke baare mein aur padhein',
+        '🔐 Read more about encryption',
       ),
       h(
         'button',
         { class: 'btn btn-danger btn-sm' },
-        'Vault poora mita dein',
+        'Wipe the whole vault',
       ),
     );
   }
 
   // Wire the destroy button (needs confirm + async).
   setTimeout(() => {
-    const btn = Array.from(screen.querySelectorAll('button')).find((b) => b.textContent?.includes('poora mita'));
+    const btn = Array.from(screen.querySelectorAll('button')).find((b) => b.textContent?.includes('Wipe the whole vault'));
     btn?.addEventListener('click', async () => {
       const ok = await confirmSheet({
-        title: 'Vault mitayein?',
-        message: 'Saare encrypted jawab hamesha ke liye chale jayenge. Yeh undo nahi hota.',
-        confirmLabel: 'Sab mita dein',
+        title: 'Wipe the vault?',
+        message: 'All encrypted answers will be gone forever. This cannot be undone.',
+        confirmLabel: 'Wipe everything',
         danger: true,
       });
       if (!ok) return;
       await destroyVault();
       state.vaultUnlocked = false;
       state.vaultPresent = false;
-      toast('Vault mit gaya');
+      toast('Vault wiped');
       await refresh();
       notify();
     });
@@ -402,5 +402,5 @@ function mask(v: string): string {
 }
 
 function escape(s: string): string {
-  return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  return String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]!);
 }

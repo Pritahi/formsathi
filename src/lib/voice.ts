@@ -1,17 +1,17 @@
 /**
- * Voice in/out. Both use the browser's own engines — no API keys, no cost.
+ * Voice in/out. Both use the browser's own engines - no API keys, no cost.
  *
  *  Voice IN  : Web Speech API (SpeechRecognition). Chrome/Edge support it on
  *              Android and desktop; Safari supports it behind its own prefixed
  *              constructor; Firefox does not. When unavailable the mic button
- *              simply does not render — no broken button.
- *  Voice OUT : speechSynthesis with hi-IN preferred, then en-IN. Works nearly
+ *              simply does not render - no broken button.
+ *  Voice OUT : speechSynthesis with en-IN preferred, then hi-IN. Works nearly
  *              everywhere, and is what makes the interview usable for someone
  *              who reads slowly.
  *
- * Hinglish note: `hi-IN` handles Roman-Hindi text surprisingly well on Android
- * because the engine transliterates; we always pass the text as-is and let the
- * engine decide. If Hindi is missing we fall back to Indian English, which is
+ * The UI is in English by default. `en-IN` is the recognition language for
+ * English dictation; we always pass the text as-is and let the engine decide.
+ * If Indian English is missing we fall back to Hindi, then generic English -
  * still far friendlier than silence.
  */
 
@@ -46,7 +46,7 @@ function getRecognitionCtor(): RecognitionCtor | null {
 export const voiceInputSupported = (): boolean => !!getRecognitionCtor();
 
 export interface ListenOptions {
-  lang?: 'hi-IN' | 'en-IN';
+  lang?: 'en-IN' | 'hi-IN';
   onInterim?: (text: string) => void;
   onFinal: (text: string) => void;
   onError?: (message: string) => void;
@@ -60,11 +60,11 @@ export interface ListeningHandle {
 export function startListening(opts: ListenOptions): ListeningHandle | null {
   const Ctor = getRecognitionCtor();
   if (!Ctor) {
-    opts.onError?.('Is browser mein voice input nahi hai — type kar dijiye.');
+    opts.onError?.('This browser has no voice input - type instead.');
     return null;
   }
   const rec = new Ctor();
-  rec.lang = opts.lang ?? 'hi-IN';
+  rec.lang = opts.lang ?? 'en-IN';
   rec.continuous = false;
   rec.interimResults = true;
   rec.maxAlternatives = 1;
@@ -86,10 +86,10 @@ export function startListening(opts: ListenOptions): ListeningHandle | null {
 
   rec.onerror = (ev) => {
     const map: Record<string, string> = {
-      'not-allowed': 'Mic ki permission nahi mili. Browser settings se allow karein.',
-      'no-speech': 'Kuch sunai nahi diya — dobara bolein.',
-      'audio-capture': 'Mic nahi mila. Ek baar check karein.',
-      network: 'Voice ke liye net chahiye. Type kar dijiye.',
+      'not-allowed': 'Microphone permission not granted. Allow it in browser settings.',
+      'no-speech': 'Nothing heard - speak again.',
+      'audio-capture': 'No microphone found. Check once.',
+      network: 'Voice needs internet. Type instead.',
       aborted: '',
     };
     const msg = map[ev.error] ?? `Voice error: ${ev.error}`;
@@ -103,7 +103,7 @@ export function startListening(opts: ListenOptions): ListeningHandle | null {
   try {
     rec.start();
   } catch {
-    opts.onError?.('Voice shuru nahi ho paya. Dobara try karein.');
+    opts.onError?.('Voice could not start. Try again.');
     return null;
   }
 
@@ -131,8 +131,8 @@ export function loadVoices(): void {
   if (!voiceOutputSupported()) return;
   voicesCache = window.speechSynthesis.getVoices();
   preferredVoice =
-    voicesCache.find((v) => /^hi[-_]IN/i.test(v.lang)) ??
     voicesCache.find((v) => /^en[-_]IN/i.test(v.lang)) ??
+    voicesCache.find((v) => /^hi[-_]IN/i.test(v.lang)) ??
     voicesCache.find((v) => /^hi/i.test(v.lang)) ??
     voicesCache.find((v) => /^en[-_]GB/i.test(v.lang)) ??
     voicesCache.find((v) => /^en/i.test(v.lang)) ??
@@ -152,7 +152,7 @@ export interface SpeakOptions {
   interrupt?: boolean;
 }
 
-/** Speak a Hinglish line. Silent no-op when unsupported. */
+/** Speak an English line. Silent no-op when unsupported. */
 export function speak(text: string, opts: SpeakOptions = {}): void {
   if (!voiceOutputSupported() || !text.trim()) {
     opts.onEnd?.();
@@ -165,7 +165,7 @@ export function speak(text: string, opts: SpeakOptions = {}): void {
   const utter = new SpeechSynthesisUtterance(text);
   if (!preferredVoice) loadVoices();
   if (preferredVoice) utter.voice = preferredVoice;
-  utter.lang = preferredVoice?.lang ?? 'hi-IN';
+  utter.lang = preferredVoice?.lang ?? 'en-IN';
   utter.rate = opts.rate ?? 0.95;
   utter.pitch = opts.pitch ?? 1;
   utter.onend = () => {
@@ -188,10 +188,11 @@ export function stopSpeaking(): void {
 
 export const isSpeaking = (): boolean => speaking;
 
-/** Which voice we will actually use — shown in Settings → Diagnostics so the
- *  demo can be honest about quality. */
+/** Which voice we will actually use - shown in Settings → Diagnostics so the
+ * demo can be honest about quality. */
 export function activeVoiceLabel(): string {
-  if (!voiceOutputSupported()) return 'Voice output nahi hai';
+  if (!voiceOutputSupported()) return 'No voice output';
   if (!preferredVoice) return 'Default system voice';
   return `${preferredVoice.name} (${preferredVoice.lang})`;
 }
+

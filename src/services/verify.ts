@@ -1,5 +1,5 @@
 /**
- * Cloud verify pass — MVP feature 4, and the app's only truly networked step.
+ * Cloud verify pass - MVP feature 4, and the app's only truly networked step.
  *
  * Pipeline (in order, and this order is the privacy guarantee):
  *   1. buildCloudPayload()  → sensitive values replaced by shape descriptors
@@ -29,7 +29,7 @@ import { setSessionContext } from '../ai/router';
 
 export interface VerifyOutcome {
   result: CloudVerifyResult;
-  /** What the cloud actually received — shown in the Privacy receipt sheet. */
+  /** What the cloud actually received - shown in the Privacy receipt sheet. */
   receipt: string;
   redactedCount: number;
   queued: boolean;
@@ -101,7 +101,7 @@ export async function runCloudVerify(
         result: {
           verdicts: [],
           summary:
-            'Internet nahi hai — verify queue mein daal diya. Net aane par apne aap chal jayega, aapko kuch karna nahi padega.',
+            'No internet - verify has been queued. It will run automatically when the network returns; you do not need to do anything.',
           overallConfidence: 0.5,
         },
         receipt,
@@ -117,8 +117,8 @@ export async function runCloudVerify(
 
 /**
  * Fold verdicts into the answers: flags become yellow/red lights with a
- * Hinglish reason, and cloud-checked fields get the `cloudVerified` badge.
- * A fix is only ever SHOWN — never silently applied.
+ * English reason, and cloud-checked fields get the `cloudVerified` badge.
+ * A fix is only ever SHOWN - never silently applied.
  */
 export function applyVerdictsToAnswers(session: FormSession, result: CloudVerifyResult): void {
   const fields = session.extraction?.fields ?? [];
@@ -131,7 +131,7 @@ export function applyVerdictsToAnswers(session: FormSession, result: CloudVerify
     if (!verdict) continue;
 
     if (!a) {
-      // Verdict on an empty field — nothing to annotate beyond the light.
+      // Verdict on an empty field - nothing to annotate beyond the light.
       if (verdict.status !== 'ok' && verdict.reason) {
         session.notes = Array.from(new Set([...(session.notes ?? []), `${field.label}: ${verdict.reason}`]));
       }
@@ -158,7 +158,7 @@ export function registerVerifyRunner(
 ): void {
   registerRunner('cloud_verify', async (task) => {
     const session = await loadSession(task.sessionId);
-    if (!session) return true; // session deleted — drop the task
+    if (!session) return true; // session deleted - drop the task
     if (!session.extraction) return true;
     try {
       const out = await runCloudVerify(session);

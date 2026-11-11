@@ -10,7 +10,7 @@
  *     Everything is normalized to JPEG here so the on-device path can never
  *     fail on a mime-type rejection.
  *
- * PDFs are rendered client-side with pdf.js — page 1 becomes the "photo" so
+ * PDFs are rendered client-side with pdf.js - page 1 becomes the "photo" so
  * the exact same extraction prompt works for paper and PDF.
  */
 
@@ -18,7 +18,7 @@ import { IMAGE_JPEG_QUALITY, IMAGE_MAX_EDGE_PX, IMAGE_MAX_EDGE_PX_ON_DEVICE } fr
 
 export interface ProcessedImage {
   blob: Blob;
-  /** bare base64 (no data: prefix) — what Firebase AI Logic wants. */
+  /** bare base64 (no data: prefix) - what Firebase AI Logic wants. */
   base64: string;
   mimeType: 'image/jpeg';
   width: number;
@@ -94,7 +94,7 @@ async function canvasCompress(
  * Process a user-picked file (photo or PDF) into something both inference
  * paths accept.
  *
- * @param forOnDevice when true, target the smaller edge budget — Nano's
+ * @param forOnDevice when true, target the smaller edge budget - Nano's
  *   vision is the slow half and it gains nothing from 1600px.
  */
 export async function processFile(file: File, forOnDevice = false): Promise<ProcessedImage> {
@@ -152,7 +152,7 @@ async function imageSize(blob: Blob): Promise<{ width: number; height: number }>
 /**
  * Render page 1 of a PDF to a JPEG blob using pdf.js.
  * pdf.js is imported dynamically so the 400 KB library is never in the boot
- * payload — PDF is the rarer intake path, and it must not cost a photo user
+ * payload - PDF is the rarer intake path, and it must not cost a photo user
  * anything.
  */
 async function renderPdfFirstPage(
@@ -217,7 +217,7 @@ export async function captureFrameFromStream(
   };
 }
 
-/** A drawn thumbnail for the session list — cheap, 240px. */
+/** A drawn thumbnail for the session list - cheap, 240px. */
 export async function makeThumb(source: Blob): Promise<Blob> {
   const url = URL.createObjectURL(source);
   try {

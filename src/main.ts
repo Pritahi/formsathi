@@ -5,7 +5,7 @@
  *   1. settings from IndexedDB          (so DEMO MODE is right before any call)
  *   2. vault presence / silent unlock    (so the first form can pre-fill)
  *   3. capability probe                  (so the first badge is truthful)
- *   4. shell render                      (fast — Firebase is not awaited)
+ *   4. shell render                      (fast - Firebase is not awaited)
  *   5. Firebase + service worker + queue (all deferred, none blocking)
  *
  * Nothing in 4–5 can throw into the user's face: a broken Firebase config still
@@ -38,8 +38,8 @@ async function main(): Promise<void> {
     const issues = result.verdicts.filter((v) => v.status !== 'ok').length;
     toast(
       issues > 0
-        ? `Net wapas aaya — cloud verify chal gaya. ${issues} field par dhyan dein.`
-        : 'Net wapas aaya — cloud verify chal gaya, sab theek ✓',
+        ? `Network is back - cloud verify ran. ${issues} field(s) need your attention.`
+        : 'Network is back - cloud verify ran, all clear ✓',
       { tone: issues > 0 ? 'warn' : 'success', ms: 5000 },
     );
     void refreshPending();
@@ -56,10 +56,10 @@ async function main(): Promise<void> {
 
   startSyncLoop(() => void refreshPending());
 
-  // 5b: service worker — offline-first app shell.
+  // 5b: service worker - offline-first app shell.
   // NOTE: boot() awaits IndexedDB, which can easily outrun the window 'load'
   // event. Attaching a 'load' listener here would then never fire and the app
-  // would silently lose its offline shell — so check readyState first.
+  // would silently lose its offline shell - so check readyState first.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     const registerSw = () => {
       void navigator.serviceWorker
@@ -70,7 +70,7 @@ async function main(): Promise<void> {
             const w = reg.installing;
             w?.addEventListener('statechange', () => {
               if (w.state === 'installed' && navigator.serviceWorker.controller) {
-                toast('Naya version aa gaya — agli baar khulne par lag jayega', { tone: 'info' });
+                toast('New version arrived - it takes effect next time you open the app.', { tone: 'info' });
               }
             });
           });
@@ -84,12 +84,12 @@ async function main(): Promise<void> {
   }
 
   // 5c: capability probe for real-mode badge truth (skipped in demo, where the
-  // router simulates on-device anyway — but we still want the Device panel).
+  // router simulates on-device anyway - but we still want the Device panel).
   if (!state.settings.demoMode) {
     void refreshCapability(true);
   }
 
-  // A single, quiet install hint — never a modal, never repeated.
+  // A single, quiet install hint - never a modal, never repeated.
   maybeInstallHint();
 }
 
@@ -102,8 +102,8 @@ function maybeInstallHint(): void {
   setTimeout(() => {
     toast(
       isIos
-        ? 'Tip: Share → "Add to Home Screen" se FormSathi ko app ki tarah install karein.'
-        : 'Tip: address bar ke install button se FormSathi ko app ki tarah install kar sakte hain.',
+        ? 'Tip: Share → "Add to Home Screen" to install FormSathi like an app.'
+        : 'Tip: use the install button in the address bar to install FormSathi like an app.',
       { tone: 'info', ms: 6000 },
     );
     localStorage.setItem(KEY, '1');
@@ -114,8 +114,9 @@ main().catch((err) => {
   console.error('[boot]', err);
   const root = document.getElementById('app');
   if (root) {
-    root.innerHTML = `<div class="screen"><h1>App shuru nahi ho paya</h1>
+    root.innerHTML = `<div class="screen"><h1>App could not start</h1>
       <p class="muted mt-8">${String(err?.message ?? err)}</p>
-      <button class="btn btn-primary mt-16" onclick="location.reload()">Dobara kholein</button></div>`;
+      <button class="btn btn-primary mt-16" onclick="location.reload()">Open again</button></div>`;
   }
 });
+

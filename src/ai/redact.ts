@@ -1,10 +1,10 @@
 /**
- * Redaction — the gate between personal answers and the cloud.
+ * Redaction - the gate between personal answers and the cloud.
  *
  * The product claim is precise, so the code has to be precise too:
  *
  *   "Personal answers never leave the phone. The cloud sees the form's
- *    structure, the shape of a value, and the official instructions — never
+ *    structure, the shape of a value, and the official instructions - never
  *    an Aadhaar number, a bank account, a mobile number, a date of birth or
  *    a home address."
  *
@@ -40,9 +40,9 @@ const NEVER = new Set(NEVER_SEND_VALUES_TO_CLOUD);
  * Two different questions, deliberately answered by two different lists:
  *
  *  • "Should this be encrypted in the vault and shown as sensitive?"
- *      → vault.isSensitiveField() — broad (includes income, category, school).
+ *      → vault.isSensitiveField() - broad (includes income, category, school).
  *  • "May this VALUE (or anything derived from it) reach the cloud?"
- *      → this function — narrow: identity numbers and exact personal strings.
+ *      → this function - narrow: identity numbers and exact personal strings.
  *
  * Income is the case that forces this split. Cloud verify must reason about the
  * NUMBER (§2 of the instructions is an income rule), so income is sent as a
@@ -63,7 +63,7 @@ export function isNeverSendField(fieldId: string, label: string): boolean {
  * ── FORMAT FACTS ────────────────────────────────────────────────────────────
  * The device holds the value; the cloud only needs to know whether the value is
  * SHAPED right. So we compute the checks locally and send the verdicts. That
- * lets cloud verify catch "+91 lag gaya hai" and "IFSC 9 characters ka hai"
+ * lets cloud verify catch "+91 was prefixed" and "IFSC is 9 characters"
  * without ever receiving the number it is complaining about.
  */
 export interface FormatFacts {
@@ -96,7 +96,7 @@ export function describeShapeDetailed(value: string, fieldType = 'text'): Format
   if (/^[\d.,]+$/.test(noSpace)) facts.push('numeric-only');
   else facts.push('not-numeric');
 
-  // Descriptor stays human — this is what a reviewer (and the demo) reads.
+  // Descriptor stays human - this is what a reviewer (and the demo) reads.
   let descriptor: string;
   if (facts.includes('iso-date') || facts.includes('dd-mm-yyyy-date')) descriptor = 'date value';
   else if (facts.includes('pan-valid')) descriptor = '10-character alphanumeric (PAN-like)';
@@ -182,8 +182,8 @@ export function buildCloudPayload(
 
   const summary =
     redacted.length === 0
-      ? 'Is call mein koi sensitive value nahi gayi.'
-      : `${redacted.length} sensitive field(s) redacted — cloud ko sirf format dikha.`;
+      ? 'No sensitive value left this call.'
+      : `${redacted.length} sensitive field(s) redacted - cloud only sees the format.`;
 
   return { payload, report: { redactedFieldIds: redacted, sentFieldIds: sent, summary } };
 }
@@ -244,7 +244,7 @@ export function sanitizeVerifyResult(
  *  actually contained. Shown in the "Privacy receipt" sheet. */
 export function redactionReceipt(payload: CloudFieldPayload[], report: RedactionReport): string {
   const lines = payload.map((p) => {
-    if (!p.valueForCloud) return `· ${p.label}: (khali)`;
+    if (!p.valueForCloud) return `· ${p.label}: (empty)`;
     return `· ${p.label}: ${p.valueRedacted ? `[REDACTED] ${p.valueForCloud}` : `"${p.valueForCloud}"`}`;
   });
   return [report.summary, ...lines].join('\n');

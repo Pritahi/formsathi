@@ -1,5 +1,5 @@
 /**
- * The interview engine — MVP feature 2.
+ * The interview engine - MVP feature 2.
  *
  * This is a state machine, NOT a chat session. Each turn builds a fresh
  * `InterviewState`, calls the router (single-turn, on-device), and folds the
@@ -29,7 +29,7 @@ export interface InterviewCallbacks {
   onError: (message: string) => void;
   /**
    * The answer did not fit the field (e.g. a date typed into Aadhaar).
-   * Fired INSTEAD of storing the value — the interview stays on the same field.
+   * Fired INSTEAD of storing the value - the interview stays on the same field.
    * Storing a value we do not believe is exactly how a form gets rejected, so
    * the engine would rather ask again.
    */
@@ -72,7 +72,7 @@ export class InterviewEngine {
 
   /**
    * Pre-fill from the vault, then start asking whatever is left.
-   * Returns how many fields the vault answered — the number the demo brags
+   * Returns how many fields the vault answered - the number the demo brags
    * about ("second form, 14 fields, zero typing").
    */
   async start(): Promise<{ prefilled: number; remaining: number }> {
@@ -110,7 +110,7 @@ export class InterviewEngine {
 
     if (this.order.length === 0) {
       const turn: InterviewTurn = {
-        question: 'Sab fields pehle se bhare hue hain — Answer Vault ka kamaal. Ab check kar lete hain.',
+        question: 'All fields are already filled - the Answer Vault at work. Let us check now.',
         fieldId: null,
         done: true,
         expects: 'free_text',
@@ -142,7 +142,7 @@ export class InterviewEngine {
       remaining,
       known,
       currentFieldId: this.order[this.cursor] ?? remaining[0]?.id ?? '',
-      language: 'hinglish',
+      language: 'en',
     };
   }
 
@@ -213,7 +213,7 @@ export class InterviewEngine {
       });
       normalized = { value: out.value, confidence: out.confidence, note: out.note };
     } catch {
-      // If normalization fails we still accept the raw answer — losing the
+      // If normalization fails we still accept the raw answer - losing the
       // user's input is worse than an unformatted value.
     }
 
@@ -222,7 +222,7 @@ export class InterviewEngine {
     if (normalized.confidence < CLARIFY_THRESHOLD && trimmed.length > 0) {
       const why =
         normalized.note ||
-        `"${trimmed}" is field ke format mein nahi baith raha. Ek baar dobara bataiye?`;
+        `"${trimmed}" does not fit the field's format. Please tell us once more?`;
       this.cb.onClarify?.(fieldId, why);
       return;
     }
@@ -277,7 +277,7 @@ export class InterviewEngine {
     const idx = this.order.indexOf(fieldId);
     if (idx >= 0) this.cursor = idx;
     else {
-      // Already answered: treat as edit — re-insert into the order at the front.
+      // Already answered: treat as edit - re-insert into the order at the front.
       this.order.unshift(fieldId);
       this.cursor = 0;
     }
@@ -339,14 +339,14 @@ export class InterviewEngine {
       a.cloudVerified = true;
       a.confidence = 0.96;
       a.confidenceLight = 'green';
-      a.note = 'Cloud verify ne theek kiya';
+      a.note = 'Cloud verify fixed it';
       await saveSession(this.session, true);
       this.cb.onAnswer(fieldId, a, this.session);
     }
   }
 }
 
-/** Which vault key a form's field maps to — exported for the UI's tooltips. */
+/** Which vault key a form's field maps to - exported for the UI's tooltips. */
 export function vaultKeyFor(label: string): string {
   return canonicalKeyFor(label);
 }

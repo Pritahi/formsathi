@@ -21,7 +21,7 @@ export interface ExtractedField {
   id: string;
   /** Exactly as printed on the form (English or bilingual). */
   label: string;
-  /** Hindi/Hinglish rendering of the label, for the interview bubble. */
+  /** Hindi rendering of the label, for bilingual display. Optional. */
   labelHi?: string;
   type: FieldType;
   required: boolean;
@@ -29,10 +29,10 @@ export interface ExtractedField {
   hint?: string;
   /** Allowed values for select fields. */
   options?: string[];
-  /** 0..1 — how sure the extractor is that this is a real fillable field. */
+  /** 0..1 - how sure the extractor is that this is a real fillable field. */
   confidence: number;
   /** Where the field sits on the source image, normalized 0..1 (for the
-   *  annotated overlay). Null when extraction came from text-only input. */
+   * annotated overlay). Null when extraction came from text-only input. */
   box?: { x: number; y: number; w: number; h: number } | null;
   /** Page index (0-based) the field was found on. */
   page?: number;
@@ -68,13 +68,13 @@ export interface Answer {
   confidenceLight: Confidence;
   source: AnswerSource;
   author: AnswerAuthor;
-  /** Hinglish one-liner shown under the field ("Income sirf numbers mein…"). */
+  /** One-liner shown under the field ("Income in figures only…"). */
   note?: string;
   /** Set when cloud verify ran on this field. */
   cloudVerified?: boolean;
   /** Cloud verify's correction suggestion, if any. */
   suggestion?: string;
-  /** Cloud verify's reason for a yellow/red flag, in Hinglish. */
+  /** Cloud verify's reason for a yellow/red flag. */
   flagReason?: string;
   updatedAt: number;
 }
@@ -85,10 +85,10 @@ export interface FieldVerdict {
   fieldId: string;
   /** ok = no issue; warn = looks wrong but allowed; fix = must change. */
   status: 'ok' | 'warn' | 'fix';
-  /** Hinglish explanation of the problem, shown in the field card. */
+  /** Explanation of the problem, shown in the field card. */
   reason?: string;
   /** Suggested corrected value (only for fields where the value is not
-   *  sensitive; sensitive fields get format advice instead of a rewrite). */
+   * sensitive; sensitive fields get format advice instead of a rewrite). */
   suggestedValue?: string;
   /** Which rule/instruction line triggered this. */
   rule?: string;
@@ -96,7 +96,7 @@ export interface FieldVerdict {
 
 export interface CloudVerifyResult {
   verdicts: FieldVerdict[];
-  /** Hinglish summary of the whole form's state. */
+  /** Summary of the whole form's state. */
   summary: string;
   /** 0..1 */
   overallConfidence: number;
@@ -107,14 +107,14 @@ export interface CloudVerifyResult {
 /** ── Interview ───────────────────────────────────────────────────────── */
 
 /**
- * The interview is a sequence of SINGLE-TURN on-device prompts. Instead of a
- * chat history we pack this state object into every prompt. This is the single
+ * The interview is a sequence of SINGLE-TURN prompts. Instead of a chat
+ * history we pack this state object into every prompt. This is the single
  * most important design constraint in the product (see README).
  */
 export interface InterviewState {
   formTitle: string;
   formType: string;
-  /** Ordered field list, ids + labels only — keeps the prompt small. */
+  /** Ordered field list, ids + labels only - keeps the prompt small. */
   remaining: Array<{ id: string; label: string; type: FieldType; hint?: string }>;
   /** Already-collected answers, keyed by field id. Packed every turn. */
   known: Record<string, string>;
@@ -122,18 +122,18 @@ export interface InterviewState {
   currentFieldId: string;
   /** Last thing the user said, if any. */
   lastUserInput?: string;
-  language: 'hinglish';
+  language: 'en' | 'hinglish';
 }
 
 export interface InterviewTurn {
-  /** The next Hinglish question to speak/show. */
+  /** The next question to speak/show. */
   question: string;
   /** Which field this question is for (may differ from currentFieldId if the
-   *  model decides to ask something else first). */
+   * model decides to ask something else first). */
   fieldId: string | null;
   /** True when the model believes the interview is complete. */
   done: boolean;
-  /** Optional gentle nudge, e.g. "Agar pata nahi to chhod dijiye". */
+  /** Optional gentle nudge, e.g. "If you don't know, skip it". */
   hint?: string;
   /** How the model wants the answer parsed. */
   expects: 'free_text' | 'number' | 'date' | 'choice';
@@ -151,12 +151,12 @@ export interface FormSession {
   title: string;
   formType: string;
   authority?: string;
-  /** Extraction result (no personal data — labels only). */
+  /** Extraction result (no personal data - labels only). */
   extraction: FormExtraction | null;
   /** OCR text of the instruction page, if the user photographed it. */
   instructionText: string | null;
   /** Lightweight pointer to the source image; the blob itself lives in a
-   *  separate IndexedDB store so sessions stay small. */
+   * separate IndexedDB store so sessions stay small. */
   sourceImageKey: string | null;
   sourceImageMime: string | null;
   /** True when the source is a PDF (rendered page 1 is the sourceImageKey). */
@@ -194,7 +194,7 @@ export interface RouteLogEntry {
   model: string;
   latencyMs: number;
   /** Bytes of image payload sent, if any. Sensitive-identity fields never
-   *  contribute bytes here because they are stripped before the call. */
+   * contribute bytes here because they are stripped before the call. */
   imageBytes?: number;
   /** True when sensitive values were redacted from this call's payload. */
   redacted: boolean;
@@ -204,6 +204,7 @@ export interface RouteLogEntry {
   error?: string;
   /** Short human reason shown in the demo's router log drawer. */
   reason: string;
-  /** Prompt size in characters — evidence for the "packed state" claim. */
+  /** Prompt size in characters - evidence for the "packed state" claim. */
   promptChars: number;
 }
+

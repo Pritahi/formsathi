@@ -4,7 +4,7 @@
  * Rationale: the app must boot in under a second on a mid-range Android over a
  * patchy connection. A React runtime would cost more than every screen of UI in
  * this project combined. The one thing a framework gives us that actually
- * matters here — safe interpolation of user/model text — is covered by `esc()`
+ * matters here - safe interpolation of user/model text - is covered by `esc()`
  * and the rule that all dynamic text goes through `tpl` tagged templates or
  * `textNode()`.
  */
@@ -18,7 +18,7 @@ export function esc(value: unknown): string {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+    .replace(/\"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
 
@@ -146,8 +146,8 @@ export interface SheetHandle {
 }
 
 /** Every open sheet, so a route change can dismiss them. Without this a sheet
- *  left open on one screen keeps its scrim over the next screen and swallows
- *  every tap — the kind of bug that only shows up on a phone. */
+ * left open on one screen keeps its scrim over the next screen and swallows
+ * every tap - the kind of bug that only shows up on a phone. */
 const openSheets = new Set<{ close: () => void }>();
 
 export function closeAllSheets(): void {
@@ -155,8 +155,8 @@ export function closeAllSheets(): void {
   openSheets.clear();
 }
 
-/** Bottom sheet — the app's only modal pattern (mobile-first, no dialogs that
- *  break on iOS Safari). */
+/** Bottom sheet - the app's only modal pattern (mobile-first, no dialogs that
+ * break on iOS Safari). */
 export function openSheet(opts: {
   title: string;
   subtitle?: string;
@@ -177,7 +177,7 @@ export function openSheet(opts: {
         h('h2', { class: 'sheet-title' }, opts.title),
         opts.subtitle ? h('p', { class: 'sheet-sub' }, opts.subtitle) : null,
       ),
-      h('button', { class: 'icon-btn', 'data-action': 'sheet-close', 'aria-label': 'Band karein' }, '✕'),
+      h('button', { class: 'icon-btn', 'data-action': 'sheet-close', 'aria-label': 'Close' }, '✕'),
     ),
     h('div', { class: 'sheet-body' }, opts.body as Node),
     opts.footer ? h('div', { class: 'sheet-foot' }, opts.footer as Node) : null,
@@ -193,7 +193,7 @@ export function openSheet(opts: {
         panel.remove();
         opts.onClose?.();
       }, 200);
-    },
+    }
   };
   openSheets.add(self);
   const close = () => {
@@ -224,7 +224,7 @@ export function openSheet(opts: {
 }
 
 /** Confirm helper built on the sheet (window.confirm is blocked in some
- *  installed-PWA contexts). */
+ * installed-PWA contexts). */
 export function confirmSheet(opts: {
   title: string;
   message: string;
@@ -238,7 +238,7 @@ export function confirmSheet(opts: {
       footer: h(
         'div',
         { class: 'row gap-8' },
-        h('button', { class: 'btn btn-ghost flex1', 'data-action': 'cancel' }, 'Nahi'),
+        h('button', { class: 'btn btn-ghost flex1', 'data-action': 'cancel' }, 'Cancel'),
         h(
           'button',
           { class: `btn ${opts.danger ? 'btn-danger' : 'btn-primary'} flex1`, 'data-action': 'ok' },
@@ -261,16 +261,17 @@ export function confirmSheet(opts: {
   });
 }
 
-/** Format a relative time in Hinglish. */
+/** Format a relative time in English. */
 export function relTime(ts: number): string {
   const diff = Date.now() - ts;
   const m = Math.round(diff / 60000);
-  if (m < 1) return 'abhi';
-  if (m < 60) return `${m} min pehle`;
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m} min ago`;
   const hh = Math.round(m / 60);
-  if (hh < 24) return `${hh} ghante pehle`;
+  if (hh < 24) return `${hh} hours ago`;
   const d = Math.round(hh / 24);
-  if (d === 1) return 'kal';
-  if (d < 30) return `${d} din pehle`;
+  if (d === 1) return 'yesterday';
+  if (d < 30) return `${d} days ago`;
   return new Date(ts).toLocaleDateString('en-IN');
 }
+

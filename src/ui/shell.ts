@@ -2,7 +2,7 @@
  * App shell: top bar, bottom nav, hash router, global status indicators.
  *
  * Routing is hash-based on purpose: it works on Firebase Hosting with zero
- * rewrite config, it is shareable, and — the real reason — the Android back
+ * rewrite config, it is shareable, and - the real reason - the Android back
  * button behaves correctly in a standalone PWA.
  */
 
@@ -37,9 +37,9 @@ export interface Route {
 }
 
 export const routes: { name: RouteName; label: string; icon: string; path: string }[] = [
-  { name: 'home', label: 'Ghar', icon: '🏠', path: '#/' },
+  { name: 'home', label: 'Home', icon: '🏠', path: '#/' },
   { name: 'vault', label: 'Vault', icon: '🔐', path: '#/vault' },
-  { name: 'how', label: 'Kaise?', icon: '💡', path: '#/how' },
+  { name: 'how', label: 'How it works', icon: '💡', path: '#/how' },
 ];
 
 let navEl: HTMLElement | null = null;
@@ -78,7 +78,7 @@ export function topBar(): HTMLElement {
   const brand = h(
     'button',
     { class: 'row gap-8', style: 'background:none;border:0;padding:0;cursor:pointer', 'data-action': 'go-home' },
-    h('span', { class: 'brand-mark' }, 'स'),
+    h('span', { class: 'brand-mark' }, 'F'),
     h('span', { class: 'strong' }, 'FormSathi'),
   );
   const actions = h('div', { class: 'topbar-actions' });
@@ -92,13 +92,13 @@ export function topBar(): HTMLElement {
     if (offlineNow) {
       const chip = h('span', { class: 'badge badge-offline badge-sm' });
       chip.innerHTML = `<span class="badge-ic">✈️</span><span class="badge-tx">Offline</span>`;
-      chip.title = state.settings.simulatedOffline ? 'Demo offline mode on' : 'Internet nahi hai';
+      chip.title = state.settings.simulatedOffline ? 'Demo offline mode on' : 'No internet';
       chips.push(chip);
     }
     if (state.pending > 0) {
       const chip = h('span', { class: 'badge badge-queued badge-sm' });
-      chip.innerHTML = `<span class="badge-ic">⏳</span><span class="badge-tx">${state.pending} queue</span>`;
-      chip.title = 'Cloud verify queue mein hai — net aane par chalega';
+      chip.innerHTML = `<span class="badge-ic">⏳</span><span class="badge-tx">${state.pending} queued</span>`;
+      chip.title = 'Cloud verify is queued - it will run when the network returns';
       chips.push(chip);
     }
     if (state.settings.demoMode) {
@@ -116,7 +116,7 @@ export function topBar(): HTMLElement {
     class: 'icon-btn',
     'data-action': 'open-router',
     title: 'Model Router log',
-    'aria-label': 'Model Router log kholein',
+    'aria-label': 'Open Model Router log',
   });
   routerBtn.textContent = '🛰';
 
@@ -124,7 +124,7 @@ export function topBar(): HTMLElement {
     class: 'icon-btn',
     'data-action': 'open-settings',
     title: 'Settings',
-    'aria-label': 'Settings kholein',
+    'aria-label': 'Open Settings',
   });
   settingsBtn.textContent = '⚙️';
 
@@ -141,7 +141,7 @@ export function topBar(): HTMLElement {
 }
 
 function renderNav(): HTMLElement {
-  const nav = h('nav', { class: 'nav', 'aria-label': 'Mukhya menu' });
+  const nav = h('nav', { class: 'nav', 'aria-label': 'Main menu' });
   for (const r of routes) {
     const active = current.name === r.name || (r.name === 'home' && ['intake', 'interview', 'checklist', 'verify', 'result'].includes(current.name));
     const btn = h('button', {
@@ -218,12 +218,12 @@ export async function render(): Promise<void> {
       h(
         'div',
         { class: 'screen' },
-        h('h1', {}, 'Kuch gadbad ho gayi'),
+        h('h1', {}, 'Something went wrong'),
         h('p', { class: 'muted mt-8' }, err instanceof Error ? err.message : String(err)),
         h(
           'button',
           { class: 'btn btn-primary mt-16', onclick: () => go('home') },
-          'Ghar wapas',
+          'Back home',
         ),
       ),
     );
@@ -240,7 +240,7 @@ export function startShell(root: HTMLElement): void {
   // Keep the header chips fresh when the network flaps.
   window.addEventListener('online', () => void render());
   window.addEventListener('offline', () => {
-    toast('Internet chala gaya — kaam jaari rahega, aapka data safe hai.', { tone: 'warn' });
+    toast('Internet went away - work continues, your data is safe.', { tone: 'warn' });
     void render();
   });
 
@@ -263,7 +263,7 @@ export function screenHeader(opts: {
 }): HTMLElement {
   const wrap = h('div', { class: 'row gap-8', style: 'margin-bottom:14px;align-items:flex-start' });
   if (opts.back) {
-    const b = h('button', { class: 'icon-btn sm', 'aria-label': 'Wapas' }, '←');
+    const b = h('button', { class: 'icon-btn sm', 'aria-label': 'Back' }, '←');
     b.addEventListener('click', opts.back);
     wrap.append(b);
   }
@@ -279,3 +279,4 @@ export function screenHeader(opts: {
 }
 
 export { badge };
+

@@ -1,5 +1,5 @@
 /**
- * Tiny indexedDB wrapper — no dependencies, promise-based.
+ * Tiny indexedDB wrapper - no dependencies, promise-based.
  *
  * Why not idb/Dexie: the whole storage layer is ~120 lines and the app must
  * boot fast on a cheap phone. Two object stores would not justify a library.
@@ -57,7 +57,7 @@ function openDb(): Promise<IDBDatabase> {
       resolve(req.result);
     };
     req.onerror = () => reject(req.error ?? new Error('IndexedDB open failed'));
-    req.onblocked = () => reject(new Error('IndexedDB blocked — close other tabs'));
+    req.onblocked = () => reject(new Error('IndexedDB blocked - close other tabs'));
   });
   return dbPromise;
 }

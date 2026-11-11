@@ -81,7 +81,7 @@ export function debounce<A extends unknown[]>(fn: (...args: A) => void, ms: numb
 }
 
 /** Best-effort JSON parse of a model response that may be wrapped in ```json
- *  fences or chatty preamble. Models — on-device especially — sometimes do
+ *  fences or chatty preamble. Models - on-device especially - sometimes do
  *  this even when asked for bare JSON. */
 export function parseJsonLoose<T>(raw: string): T {
   const text = String(raw ?? '').trim();

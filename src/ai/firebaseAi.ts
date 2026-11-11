@@ -1,6 +1,7 @@
+import { ensureAppCheck } from '../services/appCheck';
 /**
  * The real Firebase AI Logic path. Dormant until config/config.ts is filled in
- * and DEMO MODE is off — but it is complete, compiling code, not a stub.
+ * and DEMO MODE is off - but it is complete, compiling code, not a stub.
  *
  * Two model surfaces, exactly as the SDK exposes them:
  *
@@ -12,7 +13,7 @@
  *    })
  *  The SDK falls back to the in-cloud model automatically when Nano is
  *  unavailable, and (crucially for us) rejects requests it cannot run
- *  on-device — images that are not JPEG/PNG, or anything with function
+ *  on-device - images that are not JPEG/PNG, or anything with function
  *  responses. We additionally keep every on-device request single-turn.
  *
  *  CLOUD ONLY:
@@ -20,7 +21,7 @@
  *
  * The response tells us which half actually ran: `response.inferenceSource`
  * is 'on_device' or 'in_cloud'. That value is what the UI badge and the README
- * table are built from — no guessing, no faking.
+ * table are built from - no guessing, no faking.
  */
 
 import type { Part } from 'firebase/ai';
@@ -86,6 +87,7 @@ export async function initAi(config: FirebaseWebConfig): Promise<void> {
   initPromise = (async () => {
     const { ai, app } = await loadModules();
     const firebaseApp = app.getApps().length ? app.getApp() : app.initializeApp(config);
+      ensureAppCheck(firebaseApp);
     const aiInstance = ai.getAI(firebaseApp, { backend: new ai.GoogleAIBackend() });
 
     // ── HYBRID MODEL ────────────────────────────────────────────────────
@@ -117,7 +119,7 @@ export async function initAi(config: FirebaseWebConfig): Promise<void> {
 
 /**
  * Trigger the on-device model download. MUST be called from a user gesture
- * (Chrome requirement) — the Settings screen's "Download Gemini Nano" button
+ * (Chrome requirement) - the Settings screen's "Download Gemini Nano" button
  * does exactly that.
  */
 export async function initializeDeviceModel(onProgress?: DeviceInitProgress): Promise<void> {

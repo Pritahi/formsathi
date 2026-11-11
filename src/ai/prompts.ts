@@ -5,7 +5,7 @@
  * Why this file looks like this
  * ─────────────────────────────
  * Firebase AI Logic's on-device path (Gemini Nano via Chrome's Prompt API)
- * supports single-turn generation only — `startChat()` and multi-turn history
+ * supports single-turn generation only - `startChat()` and multi-turn history
  * are not available on device. The naive way to build an interview is a chat
  * loop; that silently pushes the whole interview to the cloud and guts the
  * product's privacy story.
@@ -21,7 +21,7 @@
  * app survives airplane mode and tab eviction.
  *
  * Free-form chat (the "kuch bhi poochho" box) DOES need history, so it is
- * routed to the cloud on purpose — see ROUTE_TABLE in modelRouter.ts.
+ * routed to the cloud on purpose - see ROUTE_TABLE in modelRouter.ts.
  */
 
 import type { ExtractedField, FieldType, InterviewState } from '../lib/types';
@@ -49,15 +49,13 @@ export const EXTRACTION_JSON_SHAPE = `{
 }`;
 
 /**
- * EXTRACTION — runs ON-DEVICE.
+ * EXTRACTION - runs ON-DEVICE.
  * Image in, JSON out. On-device supports text+image input (JPEG/PNG only) and
  * structured JSON output, which is exactly this task's shape.
  */
-export function buildExtractionPrompt(opts: { language: 'hinglish' | 'en' }): string {
+export function buildExtractionPrompt(): string {
   const langLine =
-    opts.language === 'hinglish'
-      ? 'labelHi Hinglish/Devanagari mein likhein, baaki JSON fields English mein.'
-      : 'Write labelHi in Hindi, all other JSON values in English.';
+    'Write all labels and values in English.';
 
   return [
     'You are FormSathi, an assistant that reads Indian government, scholarship, exam and job forms from a photograph.',
@@ -97,7 +95,7 @@ export function buildExtractionRepairPrompt(raw: string, error: string): string 
 }
 
 /**
- * INTERVIEW TURN — runs ON-DEVICE, single turn, packed state.
+ * INTERVIEW TURN - runs ON-DEVICE, single turn, packed state.
  *
  * The prompt is deliberately under ~1200 characters for a 20-field form so
  * Nano stays fast on a laptop CPU/GPU. `remaining` is truncated to the next 6
@@ -116,35 +114,35 @@ export function buildInterviewPrompt(state: InterviewState, userInput?: string):
   const fieldsLeft = state.remaining.length;
 
   return [
-    'Aap FormSathi hain — ek madadgaar dost jo Hinglish mein form bharwata hai.',
-    'Hinglish = Hindi + English mix, Roman script, jaise: "Aapka poora naam kya hai?"',
+    'You are FormSathi - a helpful friend who interviews the user to fill an Indian form.',
+    'Hinglish = Hindi + English mix, Roman script, e.g. "What is your full name?"',
     '',
     `FORM: "${state.formTitle}" (${state.formType})`,
-    'AB TAK BHARA:',
+    'ALREADY FILLED:',
     known,
     '',
-    'BAKI FIELDS (id | label | type):',
+    'FIELDS LEFT (id | label | type):',
     remaining,
-    `Total bache hue fields: ${fieldsLeft}`,
+    `Total fields left: ${fieldsLeft}`,
     '',
     `CURRENT FIELD: ${state.currentFieldId}`,
-    userInput ? `USER NE ABHI KAHA: "${userInput}"` : 'USER NE ABHI KUCH NAHI KAHA',
+    userInput ? `USER JUST SAID: "${userInput}"` : 'USER HAS NOT SAID ANYTHING YET',
     '',
-    'KAAM:',
-    '1. Agar USER NE ABHI KAHA hai, to usse CURRENT FIELD ka answer nikaalo aur usko known mein maan lo.',
-    '2. Phir agla sawaal poochho — chhota, ek line, sirf ek field ke liye.',
-    '3. Agar koi field pehle se bhara hai to use dobara mat poochho.',
-    '4. Agar sab bache hue fields ho gaye to done=true aur ek chhoti closing line do.',
-    '5. Kabhi bhi Aadhaar/PAN/bank ka number apne sawaal mein repeat mat karo.',
+    'TASK:',
+    '1. If the user just said something, extract the answer for the CURRENT FIELD and treat it as known.',
+    '2. Then ask the next question - short, one line, about just one field.',
+    '3. If a field is already filled, do not ask it again.',
+    '4. If no fields are left, set done=true and add a short closing line.',
+    '5. Never repeat an Aadhaar/PAN/bank number in your question.',
     '',
-    'STYLE: 18 words se kam. "aap" ka istemal. Numbers ke liye Hindi word + digit dono ok.',
+    'STYLE: under 18 words. Use "aap". Use plain English and digits for numbers.',
     '',
-    'OUTPUT: sirf ek JSON object, markdown fence ke bina:',
+    'OUTPUT: only one JSON object, no markdown fences:',
     '{',
-    '  "question": "Hinglish sawaal",',
+    '  "question": "English question",',
     '  "fieldId": "field id being asked, or null",',
     '  "done": false,',
-    '  "hint": "optional chhota tip",',
+    '  "hint": "optional short tip",',
     '  "expects": "free_text | number | date | choice",',
     '  "options": ["only when expects=choice"]',
     '}',
@@ -152,9 +150,9 @@ export function buildInterviewPrompt(state: InterviewState, userInput?: string):
 }
 
 /**
- * ANSWER NORMALIZATION — runs ON-DEVICE.
- * Turns a spoken/typed Hinglish answer into the exact format the field wants
- * ("pachas hazaar" → "50000", "12 August 2004" → "2004-08-12"). This is where
+ * ANSWER NORMALIZATION - runs ON-DEVICE.
+ * Turns a spoken/typed answer into the exact format the field wants
+ * ("fifty thousand" → "50000", "12 August 2004" → "2004-08-12"). This is where
  * a lot of real rejection-causing errors happen, so it is worth a dedicated
  * cheap call.
  */
@@ -171,17 +169,17 @@ export function buildNormalizePrompt(field: { label: string; type: FieldType; hi
     '- phone: 10 digits, no spaces, no +91.',
     '- text: keep the user\'s own wording, fix only obvious spelling of proper nouns.',
     '',
-    'OUTPUT JSON only: {"value": "...", "confidence": 0.0, "note": "short Hinglish note or empty"}',
+    'OUTPUT JSON only: {"value": "...", "confidence": 0.0, "note": "short note or empty"}',
   ].join('\n');
 }
 
 /**
- * CLOUD VERIFY — runs in the CLOUD, by design.
+ * CLOUD VERIFY - runs in the CLOUD, by design.
  *
  * Payload rule: we send the field SCHEMA, the FORMAT of each value, and the
  * official instruction text. Sensitive values (Aadhaar, PAN, bank, mobile,
  * DOB, address) are replaced by a shape descriptor before this prompt is even
- * built — see redact.ts. The cloud model can still catch "income should be
+ * built - see redact.ts. The cloud model can still catch "income should be
  * annual, not monthly" without ever seeing an identity number.
  */
 export function buildCloudVerifyPrompt(opts: {
@@ -201,10 +199,10 @@ export function buildCloudVerifyPrompt(opts: {
 }): string {
   const fieldLines = opts.fields
     .map((f, i) => {
-      const val = f.valueForCloud ? `"${f.valueForCloud}"` : '(khali)';
+      const val = f.valueForCloud ? `"${f.valueForCloud}"` : '(empty)';
       return `${i + 1}. id=${f.id} | "${f.label}" | type=${f.type} | required=${f.required}${
         f.hint ? ` | form hint: ${f.hint}` : ''
-      }\n   value: ${val}${f.valueRedacted ? '  [REDACTED — sirf format check karein, value nahi]' : ''}`;
+      }\n   value: ${val}${f.valueRedacted ? '  [REDACTED - format check only, do not read the value]' : ''}`;
     })
     .join('\n');
 
@@ -228,17 +226,17 @@ export function buildCloudVerifyPrompt(opts: {
     '3. INTERNAL consistency: income vs category claims, age vs date of birth, state vs address pincode.',
     '4. EMPTY required fields.',
     '',
-    'PRIVACY — read this carefully. Some values are marked [REDACTED]. Those are personal identifiers your are NOT allowed to see; the device kept them. Instead you get a descriptor plus `[format: ...]` facts that the device already computed locally (digit counts, has-plus-prefix, has-spaces, ifsc-valid, numeric-only, iso-date ...).',
-    'Use those facts as EVIDENCE. For example `[format: digits=12, chars=12, has-plus-prefix]` on a mobile field means the +91 rule is broken even though you never saw the number. Do not ask for the value. Do not invent one. Never put a sensitive value in suggestedValue — for those fields give the corrected FORMAT in `reason` and leave suggestedValue empty.',
+    'PRIVACY - read this carefully. Some values are marked [REDACTED]. Those are personal identifiers your are NOT allowed to see; the device kept them. Instead you get a descriptor plus `[format: ...]` facts that the device already computed locally (digit counts, has-plus-prefix, has-spaces, ifsc-valid, numeric-only, iso-date ...).',
+    'Use those facts as EVIDENCE. For example `[format: digits=12, chars=12, has-plus-prefix]` on a mobile field means the +91 rule is broken even though you never saw the number. Do not ask for the value. Do not invent one. Never put a sensitive value in suggestedValue - for those fields give the corrected FORMAT in `reason` and leave suggestedValue empty.',
     '',
-    'STYLE for every reason: Hinglish, one or two short sentences, friendly, no scolding. Example: "Income 5000 likha hai — scheme ki limit 2.5 lakh saalana hai, isliye yeh monthly lag raha hai. Saalana likhein."',
+    'STYLE for every reason: English, one or two short sentences, friendly, no scolding. Example: "Income written as 5000 - the scheme limit is ₹2,50,000 per year, so this looks like monthly income. Write the annual income instead."',
     '',
     'OUTPUT: one JSON object, no markdown fences:',
     '{',
     '  "verdicts": [',
-    '    { "fieldId": "...", "status": "ok | warn | fix", "reason": "Hinglish reason", "suggestedValue": "only when status=fix AND the value is not redacted", "rule": "which instruction line" }',
+    '    { "fieldId": "...", "status": "ok | warn | fix", "reason": "English reason", "suggestedValue": "only when status=fix AND the value is not redacted", "rule": "which instruction line" }',
     '  ],',
-    '  "summary": "2 line Hinglish summary of the whole form",',
+    '  "summary": "2 line English summary of the whole form",',
     '  "overallConfidence": 0.0,',
     '  "instructionsUsed": ["short quotes of the lines you relied on"]',
     '}',
@@ -248,7 +246,7 @@ export function buildCloudVerifyPrompt(opts: {
 }
 
 /**
- * REVIEW SUMMARY — runs in the CLOUD.
+ * REVIEW SUMMARY - runs in the CLOUD.
  * A calm human-readable wrap-up with the traffic-light counts, used on the
  * final screen and as the WhatsApp-shareable text.
  */
@@ -259,21 +257,21 @@ export function buildReviewSummaryPrompt(opts: {
   instructionAvailable: boolean;
 }): string {
   return [
-    'Write a short Hinglish review summary for a person who just filled an Indian form.',
+    'Write a short English review summary for a person who just filled an Indian form.',
     `FORM: "${opts.formTitle}"`,
-    `STATUS: ${opts.counts.green} fields theek hain, ${opts.counts.yellow} par dhyan dena hai, ${opts.counts.red} khali hain.`,
-    `ISSUES: ${opts.issues.length ? opts.issues.map((i) => `${i.label}: ${i.reason}`).join(' | ') : 'koi nahi'}`,
+    `STATUS: ${opts.counts.green} fields are good, ${opts.counts.yellow} need attention, ${opts.counts.red} are empty.`,
+    `ISSUES: ${opts.issues.length ? opts.issues.map((i) => `${i.label}: ${i.reason}`).join(' | ') : 'none'}`,
     `OFFICIAL INSTRUCTIONS AVAILABLE: ${opts.instructionAvailable ? 'yes' : 'no'}`,
     '',
     'Return JSON only:',
-    '{ "summary": "3-4 short Hinglish sentences", "nextSteps": ["2-3 short Hinglish action items"], "confidence": 0.0 }',
+    '{ "summary": "3-4 short English sentences", "nextSteps": ["2-3 short English action items"], "confidence": 0.0 }',
     '',
     'Be honest and specific. If instructions were not provided, say that you could only check format, not scheme rules.',
   ].join('\n');
 }
 
 /**
- * FREE-FORM CHAT — routed to CLOUD on purpose.
+ * FREE-FORM CHAT - routed to CLOUD on purpose.
  * This is the one place the product genuinely needs multi-turn history
  * (a user asking "aur yeh document chahiye kya?" three questions deep), and
  * on-device does not support multi-turn. Routing it to cloud is the honest
@@ -285,11 +283,11 @@ export function buildFreeformChatPrompt(history: Array<{ role: 'user' | 'model';
     .map((h) => `${h.role === 'user' ? 'USER' : 'FORMSATHI'}: ${h.text}`)
     .join('\n');
   return [
-    'Aap FormSathi hain — Hinglish mein form-filling madadgar.',
-    'Chhote, seedhe jawab dein (max 3 vaakya). Form ke baare mein practical salah dein.',
-    'Aadhaar/PAN jaise numbers kabhi repeat na karein. Legal ya financial guarantee na dein.',
+    'You are FormSathi - a form-filling helper replying in English.',
+    'Give short, direct answers (max 3 sentences). Give practical advice about filling the form.',
+    'Never repeat Aadhaar/PAN-style numbers. Do not give legal or financial guarantees.',
     '',
-    convo ? `PEHLE KI BAATCHEET:\n${convo}\n` : '',
+    convo ? `EARLIER CONVERSATION:\n${convo}\n` : '',
     `USER: ${question}`,
     'FORMSATHI:',
   ].join('\n');
@@ -301,7 +299,7 @@ export function buildFreeformChatPrompt(history: Array<{ role: 'user' | 'model';
 function redactForPrompt(key: string, value: string): string {
   const sensitive = /aadha|aadhar|pan|bank|account|ifsc|mobile|phone|address|dob|income/i.test(key);
   if (!sensitive) return value.slice(0, 60);
-  if (!value) return '(khali)';
+  if (!value) return '(empty)';
   return value.length > 4 ? `${'*'.repeat(Math.min(8, value.length - 2))}${value.slice(-2)}` : '****';
 }
 
@@ -309,7 +307,7 @@ function redactForPrompt(key: string, value: string): string {
 
 /** JSON schema (OpenAPI-subset) handed to the cloud model so its output is
  *  guaranteed parseable. The on-device path cannot take a schema through this
- *  SDK — it relies on the prompt-level JSON contract above, and the router
+ *  SDK - it relies on the prompt-level JSON contract above, and the router
  *  re-asks with a repair prompt if the shape is wrong. */
 export const CLOUD_VERIFY_SCHEMA = {
   type: 'object',

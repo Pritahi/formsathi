@@ -157,3 +157,4 @@ export function isSimulatedOffline(): boolean {
 export function isOfflineNow(): boolean {
   return state.settings.simulatedOffline || !state.online;
 }
+

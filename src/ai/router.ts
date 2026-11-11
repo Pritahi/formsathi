@@ -1,20 +1,20 @@
 /**
  * ============================================================================
- *  ModelRouter — the hybrid inference decision layer
+ *  ModelRouter - the hybrid inference decision layer
  * ============================================================================
  *
  * Every AI call in FormSathi goes through `route()`. Nothing else is allowed to
  * touch a model. That gives us three things the judging criteria ask for:
  *
  *  1. A per-step on-device/cloud decision (ROUTE_TABLE below), driven by the
- *     task's privacy needs and offline requirements — not by whatever the SDK
+ *     task's privacy needs and offline requirements - not by whatever the SDK
  *     happens to do.
  *  2. A truthful audit log of which half actually ran, including fallbacks,
  *     latency, image bytes and whether sensitive values were redacted.
  *  3. A UI that can badge every single answer with its provenance.
  *
  * The ROUTE_TABLE is the same table that appears in the README. If you change
- * one, change the other — `test/routeTable.test.ts` asserts they agree on the
+ * one, change the other - `test/routeTable.test.ts` asserts they agree on the
  * task list and the on-device/cloud split.
  * ============================================================================
  */
@@ -63,7 +63,7 @@ import { isNeverSendField } from './redact';
 export interface RouteDecision {
   /** Which half the router WANTS for this task. */
   path: 'on-device' | 'cloud';
-  /** Why — shown verbatim in the router log drawer and the README. */
+  /** Why - shown verbatim in the router log drawer and the README. */
   reason: string;
   /** Hard requirement: must this work with no network at all? */
   offlineCapable: boolean;
@@ -89,7 +89,7 @@ export const ROUTE_TABLE: Record<RouteTask, RouteDecision> = {
   answer_repair: {
     path: 'on-device',
     reason:
-      'Normalizing "pachas hazaar" → 50000 operates on the raw answer, so it must stay local like the interview turn.',
+      'Normalizing "fifty thousand" → 50000 operates on the raw answer, so it must stay local like the interview turn.',
     offlineCapable: true,
     privateByDesign: true,
   },
@@ -103,7 +103,7 @@ export const ROUTE_TABLE: Record<RouteTask, RouteDecision> = {
   review_summary: {
     path: 'cloud',
     reason:
-      'A readable Hinglish wrap-up benefits from the bigger model and carries no new personal data. Falls back to a local template offline.',
+      'A readable English wrap-up benefits from the bigger model and carries no new personal data. Falls back to a local template offline.',
     offlineCapable: false,
     privateByDesign: false,
   },
@@ -228,7 +228,7 @@ export async function downloadOnDeviceModel(
     routerState.onDeviceDisabled = false;
     return;
   }
-  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config missing — DEMO MODE chalu karein.');
+  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config missing - DEMO MODE chalu karein.');
   await initAi(FIREBASE_CONFIG);
   await initializeDeviceModel((p) => onProgress?.(p));
   routerState.onDeviceDisabled = false;
@@ -266,7 +266,7 @@ export function planRoute(task: RouteTask): RoutePlan {
     return {
       requested: 'on-device',
       effective: 'cloud',
-      reason: 'On-device model ne baar-baar fail kiya — is session mein cloud path chal raha hai.',
+      reason: 'On-device model ne baar-baar fail kiya - is session mein cloud path chal raha hai.',
       downgraded: true,
     };
   }
@@ -286,7 +286,7 @@ export function planRoute(task: RouteTask): RoutePlan {
     return {
       requested: 'on-device',
       effective: 'cloud',
-      reason: 'Device capability check abhi nahi hua — pehle cloud se chala rahe hain.',
+      reason: 'Device capability check abhi nahi hua - pehle cloud se chala rahe hain.',
       downgraded: true,
     };
   }
@@ -353,7 +353,7 @@ export interface ExtractArgs {
   image?: { base64: string; mimeType: 'image/jpeg' | 'image/png'; bytes?: number };
   /** DEMO MODE only: which bundled sample this is. */
   sample?: SampleKey;
-  language?: 'hinglish' | 'en';
+  language?: 'en';
 }
 
 export interface ExtractOutput {
@@ -361,11 +361,11 @@ export interface ExtractOutput {
   log: RouteLogEntry;
 }
 
-/** Step 1 — field extraction. Route: ON-DEVICE. */
+/** Step 1 - field extraction. Route: ON-DEVICE. */
 export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
   const plan = planRoute('field_extraction');
   const started = performance.now();
-  const promptText = buildExtractionPrompt({ language: args.language ?? 'hinglish' });
+  const promptText = buildExtractionPrompt();
 
   if (routerState.demoMode) {
     await mockDelay('onDeviceExtraction');
@@ -377,7 +377,7 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
       model: 'gemini-nano (demo)',
       startedAt: started,
       imageBytes: args.image?.bytes,
-      redacted: true,
+      redacted: false,
       ok: true,
       promptText,
     });
@@ -389,18 +389,18 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
 
   if (plan.effective === 'on-device' && isOffline() && !capabilityAllowsOffline()) {
     // A real on-device model runs offline; a cloud fallback cannot. Do not
-    // silently produce a wrong result — surface a queued state instead.
+    // silently produce a wrong result - surface a queued state instead.
     const log = logCall({
       task: 'field_extraction',
       plan,
       actualPath: 'cloud',
       model: CLOUD_MODEL,
       startedAt: started,
-      redacted: true,
+      redacted: false,
       ok: false,
       error: 'offline',
       promptText,
-      fallbackReason: 'Internet nahi hai aur on-device model ready nahi — extraction queue mein.',
+      fallbackReason: 'No internet and the on-device model is not ready - extraction is queued.',
     });
     throw Object.assign(new Error('offline'), { routeLog: log });
   }
@@ -412,22 +412,28 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
     schema: plan.effective === 'cloud' ? EXTRACTION_SCHEMA : undefined,
     prefer: args.sample === 'scholarship' || args.sample === 'bank' ? plan.effective : 'on-device',
     syntheticOnly: args.sample === 'scholarship' || args.sample === 'bank',
+    maxOutputTokens: 8192,
     temperature: 0.2,
   });
 
   let extraction: FormExtraction;
   try {
     extraction = normalizeExtraction(parseJsonLoose<FormExtraction>(call.text));
+    if (!extraction.fields.length) throw new Error('No fields returned');
   } catch (err) {
     // One repair attempt, also single-turn, before giving up.
     const repair = await callModel(FIREBASE_CONFIG, {
-      prompt: `Extraction JSON invalid tha (${String(err)}). Sirf valid JSON do, shape: {"title","formType","authority","fields":[{"label","type","required","confidence"}],"notes":[]}`,
+      image: args.image ? { base64: args.image.base64, mimeType: args.image.mimeType } : undefined,
+      maxOutputTokens: 8192,
+      schema: plan.effective === 'cloud' ? EXTRACTION_SCHEMA : undefined,
+      prompt: `Read the attached blank synthetic form and return every fillable field. Extraction JSON invalid tha (${String(err)}). Sirf valid JSON do, shape: {"title","formType","authority","fields":[{"label","type","required","confidence"}],"notes":[]}`,
       json: true,
       prefer: call.path,
       syntheticOnly: args.sample === 'scholarship' || args.sample === 'bank',
       temperature: 0,
     });
     extraction = normalizeExtraction(parseJsonLoose<FormExtraction>(repair.text));
+    if (!extraction.fields.length) throw new Error('The model returned no readable fields. Try another blank sample; no extraction is claimed.');
   }
 
   const log = logCall({
@@ -437,7 +443,7 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
     model: call.model,
     startedAt: started,
     imageBytes: args.image?.bytes,
-    redacted: true,
+    redacted: false,
     ok: true,
     promptText,
     fallbackReason: call.fellBack ? `Nano se cloud par fallback: ${plan.reason}` : undefined,
@@ -474,7 +480,7 @@ export interface TurnArgs {
   userInput?: string;
 }
 
-/** Step 2 — one interview turn. Route: ON-DEVICE, single-turn, packed state. */
+/** Step 2 - one interview turn. Route: ON-DEVICE, single-turn, packed state. */
 export async function routeInterviewTurn(args: TurnArgs): Promise<{ turn: InterviewTurn; log: RouteLogEntry }> {
   const plan = planRoute('interview_turn');
   const started = performance.now();
@@ -511,10 +517,10 @@ export async function routeInterviewTurn(args: TurnArgs): Promise<{ turn: Interv
     turn = normalizeTurn(parseJsonLoose<InterviewTurn>(call.text));
   } catch {
     // Fall back to a local deterministic question rather than breaking the
-    // interview in the middle — an unanswered form is worse than a plain prompt.
+    // interview in the middle - an unanswered form is worse than a plain prompt.
     const next = args.state.remaining[0];
     turn = {
-      question: next ? `"${next.label}" mein kya likhein?` : 'Sab fields bhar gaye hain.',
+      question: next ? `"${next.label}" - what should be written in it?` : 'All fields are filled.',
       fieldId: next?.id ?? null,
       done: !next,
       expects: 'free_text',
@@ -531,7 +537,7 @@ export async function routeInterviewTurn(args: TurnArgs): Promise<{ turn: Interv
     redacted: true,
     ok: true,
     promptText,
-    fallbackReason: call.fellBack ? `Nano ne jawab nahi diya — cloud par chala. ${plan.reason}` : undefined,
+    fallbackReason: call.fellBack ? `Nano ne jawab nahi diya - cloud par chala. ${plan.reason}` : undefined,
   });
   return { turn, log };
 }
@@ -601,13 +607,13 @@ export interface VerifyArgs {
   formType: string;
   instructionText: string;
   instructionImage?: { base64: string; mimeType: 'image/jpeg' | 'image/png' };
-  /** Already-redacted payload — never raw vault values. */
+  /** Already-redacted payload - never raw vault values. */
   fields: VerifyInput['fields'];
   /** For the mock: which failure modes to reproduce. */
   demoProfile?: 'clean' | 'income-monthly' | 'wrong-ifsc' | 'plus91';
 }
 
-/** Step 4 — cloud verify. Route: CLOUD. Never sees sensitive values. */
+/** Step 4 - cloud verify. Route: CLOUD. Never sees sensitive values. */
 export async function routeCloudVerify(args: VerifyArgs): Promise<{ result: CloudVerifyResult; log: RouteLogEntry }> {
   const plan = planRoute('cloud_verify');
   const started = performance.now();
@@ -631,7 +637,7 @@ export async function routeCloudVerify(args: VerifyArgs): Promise<{ result: Clou
       ok: false,
       error: 'offline',
       promptText,
-      fallbackReason: 'Internet nahi hai — verify queue mein hai, net aane par apne aap chalega.',
+      fallbackReason: 'No internet - verify is queued, it will run automatically when the network returns.',
     });
     throw Object.assign(offlineError(), { routeLog: log });
   }
@@ -669,7 +675,7 @@ export async function routeCloudVerify(args: VerifyArgs): Promise<{ result: Clou
       ok: false,
       error: 'offline',
       promptText,
-      fallbackReason: 'Internet nahi hai — verify queue mein hai, net aane par apne aap chalega.',
+      fallbackReason: 'No internet - verify is queued, it will run automatically when the network returns.',
     });
     throw Object.assign(new Error('offline'), { routeLog: log });
   }
@@ -713,7 +719,7 @@ export async function routeCloudVerify(args: VerifyArgs): Promise<{ result: Clou
   return { result: normalizeVerify(result), log };
 }
 
-/** Step 5b — review summary. Route: CLOUD, with a local template fallback. */
+/** Step 5b - review summary. Route: CLOUD, with a local template fallback. */
 export async function routeReviewSummary(args: {
   formTitle: string;
   counts: { green: number; yellow: number; red: number };
@@ -946,7 +952,7 @@ function normalizeVerify(raw: Partial<CloudVerifyResult>): CloudVerifyResult {
 /**
  * DEMO MODE: reproduce a specific mistake so the video has its money shot.
  * The UI's "Demo: income monthly likha gaya" switch maps here. It edits the
- * PAYLOAD ONLY — the user's real answer is untouched until they accept the fix.
+ * PAYLOAD ONLY - the user's real answer is untouched until they accept the fix.
  */
 function applyDemoProfile(fields: VerifyInput['fields'], profile?: VerifyArgs['demoProfile']): VerifyInput['fields'] {
   if (!profile || profile === 'clean') return fields;

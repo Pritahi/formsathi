@@ -31,7 +31,7 @@ import { APP_VERSION } from '../config/config';
 import { listSessions } from '../services/sessions';
 
 function escape(s: string): string {
-  return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  return String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]!);
 }
 
 function section(title: string): HTMLElement {
@@ -109,14 +109,14 @@ export function openSettings(): void {
       style: 'border:1px solid var(--line);border-radius:12px',
     });
     wrap.append(
-      h('div', { class: 'strong text-sm' }, 'Demo galti (cloud verify ke liye)'),
-      h('div', { class: 'text-2xs muted mt-2' }, 'Verify ko batayein kaunsi galti pakadni hai.'),
+      h('div', { class: 'strong text-sm' }, 'Demo mistake (for cloud verify)'),
+      h('div', { class: 'text-2xs muted mt-2' }, 'Tell verify which mistake to catch.'),
       chipRow(
         [
           { k: 'income-monthly', l: 'monthly income' },
           { k: 'plus91', l: '+91 mobile' },
-          { k: 'wrong-ifsc', l: 'galat IFSC' },
-          { k: 'clean', l: 'sab theek' },
+          { k: 'wrong-ifsc', l: 'wrong IFSC' },
+          { k: 'clean', l: 'all fine' },
         ],
         state.settings.demoVerifyProfile,
         async (k) => {
@@ -132,25 +132,25 @@ export function openSettings(): void {
     const cap = routerState.capability;
     const snap = hybridSnapshot();
     const d = h('div', { class: 'card-flat' });
-    d.innerHTML = `<dl class="kv">
-      <dt>Support</dt><dd>${escape(cap?.support ?? 'check nahi hua')}</dd>
-      <dt>Browser</dt><dd>${escape(cap?.detail.browser ?? '—')}${cap?.detail.chromiumMajor ? ` v${cap.detail.chromiumMajor}` : ''}</dd>
-      <dt>Desktop</dt><dd>${cap?.detail.isDesktop ? 'haan' : 'nahi'}</dd>
-      <dt>Prompt API</dt><dd>${cap?.detail.hasPromptApi ? 'mil gaya' : 'nahi hai'}</dd>
-      <dt>HTTPS</dt><dd>${cap?.detail.secureContext ? 'haan' : 'nahi'}</dd>
+    d.innerHTML = `<dl class=\"kv\">
+      <dt>Support</dt><dd>${escape(cap?.support ?? 'not checked yet')}</dd>
+      <dt>Browser</dt><dd>${escape(cap?.detail.browser ?? '-')}${cap?.detail.chromiumMajor ? ` v${cap.detail.chromiumMajor}` : ''}</dd>
+      <dt>Desktop</dt><dd>${cap?.detail.isDesktop ? 'yes' : 'no'}</dd>
+      <dt>Prompt API</dt><dd>${cap?.detail.hasPromptApi ? 'available' : 'not available'}</dd>
+      <dt>HTTPS</dt><dd>${cap?.detail.secureContext ? 'yes' : 'no'}</dd>
       <dt>On-device calls</dt><dd>${snap.onDeviceCalls}</dd>
       <dt>Cloud calls</dt><dd>${snap.cloudCalls}</dd>
     </dl>
     <p class="text-2xs muted mt-8">${escape(cap?.reason ?? '')}</p>`;
 
     const row = h('div', { class: 'row gap-8 mt-12' });
-    const probe = h('button', { class: 'btn btn-secondary btn-sm flex1' }, '🔄 Dobara check');
+    const probe = h('button', { class: 'btn btn-secondary btn-sm flex1' }, '🔄 Check again');
     probe.addEventListener('click', async () => {
       await refreshCapability(true);
-      toast('Check ho gaya');
+      toast('Check done');
       await paint();
     });
-    const dl = h('button', { class: 'btn btn-ghost btn-sm' }, '⬇️ Nano download');
+    const dl = h('button', { class: 'btn btn-ghost btn-sm' }, '⬇️ Download Nano');
     dl.addEventListener('click', async () => {
       try {
         await downloadOnDeviceModel((p) => {
@@ -158,7 +158,7 @@ export function openSettings(): void {
         });
         await paint();
       } catch (err) {
-        toast(err instanceof Error ? err.message : 'Download fail', { tone: 'error' });
+        toast(err instanceof Error ? err.message : 'Download failed', { tone: 'error' });
       }
     });
     row.append(probe, dl);
@@ -168,25 +168,25 @@ export function openSettings(): void {
 
   const dataCard = (queueLen: number, storage: { usage: number; quota: number } | null, sessionCount: number, vaultCount: number): HTMLElement => {
     const d = h('div', {});
-    d.innerHTML = `<dl class="kv">
+    d.innerHTML = `<dl class=\"kv\">
       <dt>Form sessions</dt><dd>${sessionCount}</dd>
       <dt>Vault records</dt><dd>${vaultCount} (encrypted)</dd>
-      <dt>Storage use</dt><dd>${storage ? `${formatBytes(storage.usage)} / ${formatBytes(storage.quota)}` : '—'}</dd>
+      <dt>Storage use</dt><dd>${storage ? `${formatBytes(storage.usage)} / ${formatBytes(storage.quota)}` : '-'}</dd>
       <dt>Pending queue</dt><dd>${queueLen}</dd>
       <dt>Firebase</dt><dd>${escape(firebaseStatusLabel())}</dd>
-      <dt>Uid</dt><dd class="mono">${escape(state.firebase.uid ?? '—')}</dd>
+      <dt>Uid</dt><dd class="mono">${escape(state.firebase.uid ?? '-')}</dd>
     </dl>`;
     const row = h('div', { class: 'row wrap gap-8 mt-12' });
-    const flush = h('button', { class: 'btn btn-secondary btn-sm' }, '⏳ Queue ab chalayein');
+    const flush = h('button', { class: 'btn btn-secondary btn-sm' }, '⏳ Run queue now');
     flush.addEventListener('click', async () => {
       const r = await flushQueue();
-      toast(`${r.ran} task chalaye, ${r.ok} safal`, { tone: r.ok ? 'success' : 'warn' });
+      toast(`${r.ran} tasks ran, ${r.ok} succeeded`, { tone: r.ok ? 'success' : 'warn' });
       await paint();
     });
-    const clear = h('button', { class: 'btn btn-ghost btn-sm' }, '📋 Log clear karein');
+    const clear = h('button', { class: 'btn btn-ghost btn-sm' }, '📋 Clear log');
     clear.addEventListener('click', async () => {
       clearRouterLog();
-      toast('Router log clear');
+      toast('Router log cleared');
       await paint();
     });
     row.append(flush, clear);
@@ -197,8 +197,8 @@ export function openSettings(): void {
   const aboutCard = (): HTMLElement => {
     const d = h('div', {});
     d.innerHTML = `<p class="text-xs muted" style="line-height:1.6">
-      FormSathi — #BuildHybridAI 2026 ke liye bana. Firebase AI Logic ka hybrid inference:
-      on-device Gemini Nano (Chrome Prompt API) aur cloud Gemini, ek hi API surface se.
+      FormSathi - built for #BuildHybridAI 2026. Firebase AI Logic hybrid inference:
+      on-device Gemini Nano (Chrome Prompt API) and cloud Gemini, one API surface.
     </p>
     <dl class="kv mt-8">
       <dt>Version</dt><dd>${APP_VERSION}</dd>
@@ -206,24 +206,24 @@ export function openSettings(): void {
       <dt>Cloud</dt><dd>Firebase Spark free tier only</dd>
     </dl>`;
     const row = h('div', { class: 'row gap-8 mt-12' });
-    const log = h('button', { class: 'btn btn-primary btn-sm flex1' }, '🛰 Router log kholein');
+    const log = h('button', { class: 'btn btn-primary btn-sm flex1' }, '🛰 Open router log');
     log.addEventListener('click', () => {
       sheet.close();
       openRouterLog();
     });
-    const wipe = h('button', { class: 'btn btn-danger btn-sm' }, '🗑 Sab mitayein');
+    const wipe = h('button', { class: 'btn btn-danger btn-sm' }, '🗑 Wipe everything');
     wipe.addEventListener('click', async () => {
       const ok = await confirmSheet({
-        title: 'Sab data mitayein?',
+        title: 'Wipe all data?',
         message:
-          'Saare forms, photos aur sessions is phone se hat jayenge. Vault alag se mitana padta hai (Vault screen par).',
-        confirmLabel: 'Sab mitayein',
+          'All forms, photos and sessions will be removed from this phone. The vault must be wiped separately (on the Vault screen).',
+        confirmLabel: 'Wipe everything',
         danger: true,
       });
       if (!ok) return;
       await idb.clear(STORE.sessions);
       await idb.clear(STORE.images);
-      toast('Forms mit gaye');
+      toast('Forms wiped');
       notify();
       await paint();
     });
@@ -239,14 +239,14 @@ export function openSettings(): void {
     const vaultCount = await idb.keys(STORE.vault).catch(() => []);
 
     body.replaceChildren(
-      section('Demo aur mode'),
+      section('Demo and mode'),
       toggleRow(
         'DEMO MODE',
-        'Mock models chalayein — koi Firebase key nahi chahiye',
+        'Run mock models - no Firebase key needed',
         state.settings.demoMode,
         async (v) => {
           await saveSettings({ demoMode: v });
-          toast(v ? 'Demo mode on — sab AI calls mock se' : 'Live mode on — Firebase AI Logic use hoga', {
+          toast(v ? 'Demo mode on - all AI calls are mocked' : 'Live mode on - Firebase AI Logic will be used', {
             tone: 'info',
           });
           await paint();
@@ -257,11 +257,11 @@ export function openSettings(): void {
       section('Network'),
       toggleRow(
         'Airplane mode (simulate)',
-        'Offline-first demo ke liye — app waise hi chalega jaise net bina',
+        'For the offline-first demo - the app works as if there is no network',
         state.settings.simulatedOffline,
         async (v) => {
           await saveSettings({ simulatedOffline: v });
-          toast(v ? '✈️ Offline mode on — form bharna chalta rahega' : 'Online mode on', {
+          toast(v ? '✈️ Offline mode on - form filling continues' : 'Online mode on', {
             tone: v ? 'warn' : 'success',
           });
           await paint();
@@ -270,25 +270,25 @@ export function openSettings(): void {
       h(
         'p',
         { class: 'text-2xs muted' },
-        'Yeh browser ko offline nahi karta — sirf app ke cloud calls rok deta hai aur queue on kar deta hai. Asli airplane mode se bhi same behaviour milta hai.',
+        'This does not take the browser offline - it only stops the app\'s cloud calls and turns the queue on. Real airplane mode behaves the same.',
       ),
 
-      section('Awaaz'),
+      section('Voice'),
       toggleRow(
-        'Sawaal bolein (voice out)',
+        'Speak questions (voice out)',
         `Voice: ${activeVoiceLabel()}`,
         state.settings.voiceOutput && voiceOutputSupported(),
         async (v) => {
           await saveSettings({ voiceOutput: v });
-          toast(v ? 'Sawaal bol kar sunaye jayenge' : 'Voice off', { tone: 'info' });
+          toast(v ? 'Questions will be spoken aloud' : 'Voice off', { tone: 'info' });
           await paint();
         },
       ),
       toggleRow(
-        'Mic se jawab (voice in)',
+        'Answer by mic (voice in)',
         voiceInputSupported()
-          ? 'Web Speech API — browser ka apna engine'
-          : 'Is browser mein voice input nahi hai',
+          ? 'Web Speech API - the browser\'s own engine'
+          : 'This browser has no voice input',
         state.settings.voiceInput && voiceInputSupported(),
         async (v) => {
           await saveSettings({ voiceInput: v });
@@ -299,13 +299,14 @@ export function openSettings(): void {
       section('On-device model'),
       deviceCard(),
 
-      section('Data aur storage'),
+      section('Data and storage'),
       dataCard(queue.length, storage, sessions.length, vaultCount.length),
 
-      section('Iske baare mein'),
+      section('About'),
       aboutCard(),
     );
   };
 
   void paint();
 }
+

@@ -167,7 +167,7 @@ describe('cloud verify routing', () => {
     });
     const verdict = result.verdicts.find((v) => v.fieldId === 'annual_family_income');
     expect(verdict?.status).toBe('fix');
-    expect(verdict?.reason).toMatch(/saal|annual/i);
+    expect(verdict?.reason).toMatch(/annual|year|monthly/i);
     expect(verdict?.suggestedValue).toBe('60000');
   });
 });

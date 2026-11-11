@@ -1,5 +1,5 @@
 /**
- * Form intake — MVP feature 1.
+ * Form intake - MVP feature 1.
  *
  * Accepts: camera capture, gallery photo, PDF, or one of the bundled sample
  * forms (demo path with zero keys). Then:
@@ -40,8 +40,8 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
     if (stage === 'choose') {
       screen.replaceChildren(
         screenHeader({
-          title: 'Form add karein',
-          subtitle: 'Photo, PDF ya sample — jo aapke paas ho',
+          title: 'Add a form',
+          subtitle: 'Photo, PDF or sample - whatever you have',
           back: () => go('home'),
         }),
         picker(),
@@ -60,7 +60,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
     }
 
     screen.replaceChildren(
-      screenHeader({ title: 'Nahi padh paye', back: () => go('home') }),
+      screenHeader({ title: 'Could not read', back: () => go('home') }),
       h('div', { class: 'note note-danger mb-16' }, h('span', {}, '⚠️'), h('div', {}, errorMessage)),
       h(
         'button',
@@ -71,9 +71,9 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
             paint();
           },
         },
-        'Dobara koshish karein',
+        'Try again',
       ),
-      h('button', { class: 'btn btn-ghost btn-block mt-8', onclick: () => go('how') }, 'Madad chahiye?'),
+      h('button', { class: 'btn btn-ghost btn-block mt-8', onclick: () => go('how') }, 'Need help?'),
     );
   };
 
@@ -113,8 +113,8 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       <div class="row gap-12">
         <span class="avatar" style="width:44px;height:44px;font-size:20px" aria-hidden="true">📷</span>
         <div style="flex:1">
-          <div class="card-title">Photo kheenchein</div>
-          <div class="text-xs muted">Form ko seedha rakhein, poora page frame mein aaye</div>
+          <div class="card-title">Take a photo</div>
+          <div class="text-xs muted">Keep the form straight, full page in frame</div>
         </div>
         <span aria-hidden="true" style="font-size:18px;color:var(--ink-4)">›</span>
       </div>
@@ -126,8 +126,8 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       <div class="row gap-12">
         <span class="avatar" style="width:44px;height:44px;font-size:20px" aria-hidden="true">🖼️</span>
         <div style="flex:1">
-          <div class="card-title">Gallery se chunein</div>
-          <div class="text-xs muted">Photo ya PDF — dono chalenge</div>
+          <div class="card-title">Choose from gallery</div>
+          <div class="text-xs muted">Photo or PDF - both work</div>
         </div>
         <span aria-hidden="true" style="font-size:18px;color:var(--ink-4)">›</span>
       </div>
@@ -139,8 +139,8 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       <div class="row gap-12">
         <span class="avatar" style="width:44px;height:44px;font-size:20px" aria-hidden="true">🎬</span>
         <div style="flex:1">
-          <div class="card-title">Sample form se dekhein</div>
-          <div class="text-xs muted">Bina camera — demo ke liye ready forms</div>
+          <div class="card-title">See it with a sample form</div>
+          <div class="text-xs muted">No camera - ready forms for the demo</div>
         </div>
         <span aria-hidden="true" style="font-size:18px;color:var(--ink-4)">›</span>
       </div>
@@ -155,7 +155,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
           'div',
           { class: 'note note-warn mt-8' },
           h('span', {}, '✈️'),
-          h('div', {}, h('b', {}, 'Offline mode on hai. '), 'Form padhna phir bhi chalega — on-device hai. Sirf cloud verify queue mein jayega.'),
+          h('div', {}, h('b', {}, 'Offline mode is on. '), 'Reading the form still works - it is on-device. Only cloud verify goes into the queue.'),
         ),
       );
     }
@@ -166,13 +166,13 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
     return h(
       'div',
       { class: 'card-flat mt-16' },
-      h('b', { class: 'text-sm' }, 'Achhi photo ke liye'),
+      h('b', { class: 'text-sm' }, 'For a good photo'),
       h(
         'ul',
         { class: 'text-xs muted', style: 'margin:8px 0 0;padding-left:18px;line-height:1.7' },
-        h('li', {}, 'Form ko table par rakhein, roshni mein'),
-        h('li', {}, 'Poora page frame ke andar aaye — kona na kate'),
-        h('li', {}, 'Chhaya ya tirchi photo se fields blur ho jati hain'),
+        h('li', {}, 'Place the form on a table in good light'),
+        h('li', {}, 'The full page must fit in the frame - no cut corners'),
+        h('li', {}, 'Shadows or tilted photos blur the fields'),
       ),
     );
   }
@@ -185,26 +185,26 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
     return h(
       'div',
       { class: 'screen', style: 'padding-top:8px' },
-      h('h1', { style: 'font-size:21px' }, isReading ? 'Form padh raha hoon…' : 'Photo taiyaar kar raha hoon…'),
+      h('h1', { style: 'font-size:21px' }, isReading ? 'Reading the form…' : 'Preparing the photo…'),
       h(
         'p',
         { class: 'text-sm muted mt-8' },
         isReading
-          ? 'Demo mein mock extraction. Live mein actual source result ke badge par dikhega; personal forms ke liye cloud fallback band hai.'
-          : 'Photo chhoti kar raha hoon taaki data kam lage.',
+          ? 'Demo uses mock extraction. Live shows the actual source result badge; cloud fallback is off for personal forms.'
+          : 'Shrinking the photo so it uses less data.',
       ),
       preview
         ? h(
             'div',
             { class: 'viewer mt-16' },
-            h('img', { src: preview.dataUrl, alt: 'Aapki chuni hui form' }),
+            h('img', { src: preview.dataUrl, alt: 'Your chosen form' }),
           )
         : null,
       h('div', { class: 'progress progress-indeterminate mt-16' }, h('i', { style: 'width:40%' })),
       h(
         'div',
         { class: 'row center gap-8 mt-16' },
-        h('span', { class: 'text-xs muted' }, 'Processing - source result ke baad'),
+        h('span', { class: 'text-xs muted' }, 'Processing - after the source result'),
         state.settings.demoMode ? badge({ kind: 'demo' }) : '',
       ),
       preview
@@ -217,7 +217,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
 
   async function handleFile(file: File, sample: SampleKey) {
     if (file.size > 40 * 1024 * 1024) {
-      toast('File bahut badi hai (40 MB se zyada)', { tone: 'error' });
+      toast('File too big (over 40 MB)', { tone: 'error' });
       return;
     }
     stage = 'compressing';
@@ -228,7 +228,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       await extractAndContinue(processed, sample);
     } catch (err) {
       stage = 'error';
-      errorMessage = err instanceof Error ? err.message : 'File padhne mein dikkat aayi.';
+      errorMessage = err instanceof Error ? err.message : 'There was a problem reading the file.';
       paint();
     }
   }
@@ -255,7 +255,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       await extractAndContinue(processed, key);
     } catch (err) {
       stage = 'error';
-      errorMessage = err instanceof Error ? err.message : 'Sample load nahi hua.';
+      errorMessage = err instanceof Error ? err.message : 'Sample failed to load.';
       paint();
     }
   }
@@ -271,7 +271,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       const { extraction, log } = await routeExtract({
         image: { base64: image.base64, mimeType: image.mimeType, bytes: image.bytes },
         sample,
-        language: 'hinglish',
+        language: 'en',
       });
 
       session.title = extraction.title;
@@ -294,10 +294,10 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       stage = 'error';
       const offline = err instanceof Error && /offline/i.test(err.message);
       errorMessage = offline
-        ? 'Internet nahi hai aur on-device model abhi ready nahi hai. Settings se Gemini Nano download karein, ya net aane par dobara try karein.'
+        ? 'No internet and the on-device model is not ready. Download Gemini Nano from Settings, or try again when the network returns.'
         : err instanceof Error
           ? err.message
-          : 'Extraction fail ho gaya.';
+          : 'Extraction failed.';
       paint();
     }
   }
@@ -307,9 +307,9 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
     const body = h('div', { class: 'col gap-12' });
     body.innerHTML = `
       <div class="row wrap gap-6">
-        ${badge({ kind: log.actualPath.includes('cloud') ? 'cloud' : 'on-device' })}
+        ${badge({ kind: log.actualPath.includes('cloud') ? 'cloud' : 'on-device', label: log.actualPath.includes('cloud') ? 'Cloud extraction (not official validation)' : 'On-device extraction' })}
         ${state.settings.demoMode ? badge({ kind: 'demo' }) : ''}
-        <span class="text-xs muted">${extraction.fields.length} fields mile</span>
+        <span class="text-xs muted">${extraction.fields.length} fields found</span>
       </div>
       ${provenanceLine(log)}
       <div class="card-flat">
@@ -328,7 +328,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
               <span class="text-2xs muted" style="width:52px;flex:none">${Math.round(f.confidence * 100)}%</span>
               <div style="flex:1;min-width:0">
                 <div class="text-xs strong">${escape(f.label)}</div>
-                <div class="text-2xs muted">${f.type}${f.required ? ' · zaroori' : ''}${f.hint ? ` · ${escape(f.hint)}` : ''}</div>
+                <div class="text-2xs muted">${f.type}${f.required ? ' · required' : ''}${f.hint ? ` · ${escape(f.hint)}` : ''}</div>
               </div>
             </div>`,
           )
@@ -337,7 +337,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
     `;
 
     const footer = h('div', { class: 'row gap-8' });
-    const start = h('button', { class: 'btn btn-primary flex1' }, 'Shuru karein →');
+    const start = h('button', { class: 'btn btn-primary flex1' }, 'Start →');
     start.addEventListener('click', () => {
       sheet.close();
       go('interview', session.id);
@@ -347,8 +347,8 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
     footer.append(start, logBtn);
 
     const sheet = openSheet({
-      title: 'Form padh liya',
-      subtitle: state.settings.demoMode ? 'DEMO: mock extraction (asli mode mein Gemini Nano)' : undefined,
+      title: 'Form read',
+      subtitle: state.settings.demoMode ? 'DEMO: mock extraction, not live inference' : undefined,
       body,
       footer,
     });
@@ -357,12 +357,12 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
   function openSamplePicker(): void {
     const body = h('div', { class: 'col gap-12' });
     body.innerHTML = `
-      <p class="text-sm muted">Demo ke liye do forms ready hain. Pehle scholarship form bharein, phir bank form — aap dekhenge ki Answer Vault se kitna kuch apne aap bhar jata hai.</p>
+      <p class="text-sm muted">Two forms are ready for the demo. Fill the scholarship form first, then the bank form - you will see how much the Answer Vault fills in automatically.</p>
       <div class="row gap-8">
         <div style="flex:1">
           <img class="sample-thumb" src="${SCHOLARSHIP_SAMPLE.image}" alt="Scholarship form sample" />
           <button class="btn btn-primary btn-sm btn-block mt-8" data-sample="scholarship">Scholarship form</button>
-          <div class="text-2xs muted center-text mt-2">20 fields · asli jaisa</div>
+          <div class="text-2xs muted center-text mt-2">20 fields · realistic</div>
         </div>
         <div style="flex:1">
           <img class="sample-thumb" src="${BANK_SAMPLE.image}" alt="Bank form sample" />
@@ -372,10 +372,10 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       </div>
       <div class="note">
         <span>💡</span>
-        <div>Asli photo bhi try karein — camera button se. Demo mein model sample form pehchan leta hai; asli mode mein aapki apni form padhega.</div>
+        <div>Personal photos need real on-device Nano. They never fall back to unpaid cloud. Bundled samples are fictional.</div>
       </div>
     `;
-    const sheet = openSheet({ title: 'Sample form chunein', body });
+    const sheet = openSheet({ title: 'Choose a sample form', body });
     body.addEventListener('click', (ev) => {
       const btn = (ev.target as HTMLElement).closest<HTMLElement>('[data-sample]');
       if (!btn) return;
@@ -391,5 +391,5 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
 }
 
 function escape(s: string): string {
-  return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  return String(s ?? '').replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]!);
 }

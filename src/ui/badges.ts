@@ -1,5 +1,5 @@
 /**
- * Provenance badges — the UI surface of the ModelRouter log.
+ * Provenance badges - the UI surface of the ModelRouter log.
  *
  * Every answer, every step header and every AI action carries one of these.
  * This is what makes the hybrid story visible on Safari, on a phone, or in a
@@ -23,8 +23,8 @@ export interface BadgeOptions {
 
 const SPEC: Record<BadgeKind, { label: string; icon: string; cls: string }> = {
   'on-device': { label: 'On-device', icon: '📱', cls: 'badge-device' },
-  cloud: { label: 'Cloud-verified', icon: '☁️', cls: 'badge-cloud' },
-  queued: { label: 'Queue mein', icon: '⏳', cls: 'badge-queued' },
+  cloud: { label: 'Cloud AI', icon: '☁️', cls: 'badge-cloud' },
+  queued: { label: 'Queued', icon: '⏳', cls: 'badge-queued' },
   offline: { label: 'Offline', icon: '✈️', cls: 'badge-offline' },
   fallback: { label: 'Cloud fallback', icon: '↪️', cls: 'badge-fallback' },
   demo: { label: 'Demo', icon: '🧪', cls: 'badge-demo' },
@@ -44,7 +44,7 @@ export function badge(opts: BadgeOptions): string {
 /** Badge for a completed AI call, derived from the router log entry. */
 export function badgeForLog(entry: RouteLogEntry | undefined): string {
   if (!entry) return '';
-  if (!entry.ok) return badge({ kind: entry.offline ? 'queued' : 'fallback', label: entry.offline ? 'Queue mein' : 'Fail' });
+  if (!entry.ok) return badge({ kind: entry.offline ? 'queued' : 'fallback', label: entry.offline ? 'Queued' : 'Fail' });
   if (entry.actualPath === 'local') return badge({ kind: 'offline', label: 'Local rules (no AI)' });
   if (entry.actualPath === 'on-device') return badge({ kind: 'on-device', title: entry.reason });
   if (entry.actualPath === 'mock-on-device')
@@ -56,13 +56,13 @@ export function badgeForLog(entry: RouteLogEntry | undefined): string {
 }
 
 /** Traffic light. Colours are also distinguishable by shape/label for
- *  colour-blind users — the brief's "simple traffic light" read literally. */
+ * colour-blind users - the brief's "simple traffic light" read literally. */
 export function light(kind: 'green' | 'yellow' | 'red', opts: { withLabel?: boolean; size?: 'sm' | 'md' } = {}): string {
-  const labels = { green: 'Theek', yellow: 'Dekh lein', red: 'Khali' } as const;
+  const labels = { green: 'Good', yellow: 'Review', red: 'Empty' } as const;
   const titles = {
-    green: 'Green — bhara hua hai aur sahi lag raha hai',
-    yellow: 'Yellow — bhara hai par ek nazar daalni hai',
-    red: 'Red — khali hai, bharna zaroori hai',
+    green: 'Green - filled and looks right',
+    yellow: 'Yellow - filled but take a look',
+    red: 'Red - empty, needs filling',
   } as const;
   return html`<span
     class="light light-${raw(kind)} ${opts.size === 'sm' ? 'light-sm' : ''}"
@@ -78,7 +78,7 @@ export function light(kind: 'green' | 'yellow' | 'red', opts: { withLabel?: bool
 export function lightCounts(counts: { green: number; yellow: number; red: number }): string {
   // NOTE: nested html`` results are plain strings, so anything nested inside a
   // tagged template must be wrapped in raw() or it gets escaped back into text.
-  return html`<span class="light-counts" aria-label="${counts.green} theek, ${counts.yellow} dekh lein, ${counts.red} khali">
+  return html`<span class="light-counts" aria-label="${counts.green} good, ${counts.yellow} review, ${counts.red} empty">
     <span class="light light-green light-sm"><span class="light-dot"></span></span><b>${counts.green}</b>
     <span class="light light-yellow light-sm"><span class="light-dot"></span></span><b>${counts.yellow}</b>
     <span class="light light-red light-sm"><span class="light-dot"></span></span><b>${counts.red}</b>
@@ -100,3 +100,4 @@ export function provenanceLine(entry: RouteLogEntry | undefined): string {
 }
 
 export const BADGE_CSS_HINT = 'badges are styled in styles.css under .badge-*';
+

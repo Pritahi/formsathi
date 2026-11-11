@@ -1,10 +1,10 @@
 /**
- * Session store — durable, offline-first persistence for everything except
+ * Session store - durable, offline-first persistence for everything except
  * answer values (those live in the vault).
  *
  * Two stores are used:
  *   sessions : FormSession JSON (labels, lights, statuses, no raw values that
- *              the vault considers sensitive — but non-sensitive values do live
+ *              the vault considers sensitive - but non-sensitive values do live
  *              here so the answer sheet survives a reload while the vault is
  *              locked; see the note in README → Privacy model).
  *   images   : the compressed form photo blob, keyed by session id.
@@ -97,10 +97,10 @@ export async function getLastSession(): Promise<string | null> {
 /**
  * The traffic light, in one place so it can never drift between screens.
  *
- *   red    — required and empty, or a value we could not parse at all
- *   yellow — present but needs a look: low model confidence, a cloud flag, a
+ *   red    - required and empty, or a value we could not parse at all
+ *   yellow - present but needs a look: low model confidence, a cloud flag, a
  *            format that contradicts the form's own hint
- *   green  — present and either vault-sourced, cloud-verified, or high
+ *   green  - present and either vault-sourced, cloud-verified, or high
  *            confidence
  *
  * Deliberately conservative: a field only turns green when we have a reason.
@@ -112,8 +112,8 @@ export function computeLight(
   ctx?: { cloudFlagged?: boolean },
 ): Confidence {
   if (!answer || !answer.value || !answer.value.trim()) {
-    // Missing is missing, required or not — the brief's red light means
-    // "khali", and the UI separately labels optional empties as chhod sakte hain.
+    // Missing is missing, required or not - the brief's red light means
+    // "empty", and the UI separately labels optional empties as skippable.
     return 'red';
   }
   if (ctx?.cloudFlagged) return 'yellow';
@@ -146,7 +146,7 @@ export function unansweredFields(session: FormSession): string[] {
     .map((f) => f.id);
 }
 
-/** How much of the form is done, 0..1 — used by the progress ring. */
+/** How much of the form is done, 0..1 - used by the progress ring. */
 export function completion(session: FormSession): number {
   const fields = session.extraction?.fields ?? [];
   if (fields.length === 0) return 0;

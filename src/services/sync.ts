@@ -1,5 +1,5 @@
 /**
- * Offline queue — MVP feature 6.
+ * Offline queue - MVP feature 6.
  *
  * Steps 1–3 and 5 work with the radio off. Step 4 (cloud verify) is the only
  * thing that truly needs a network, so it is queued here and replayed when
@@ -8,7 +8,7 @@
  *   • a 20 s poll while the queue is non-empty (covers captive portals and
  *     browsers that never fire 'online')
  *
- * The queue holds only session IDs — never payloads — because the session and
+ * The queue holds only session IDs - never payloads - because the session and
  * the vault are already durable in IndexedDB. That keeps the queue tiny and
  * makes it survive a reload for free.
  */
@@ -49,7 +49,7 @@ async function saveQueue(q: PendingTask[]): Promise<void> {
 
 export async function enqueue(kind: PendingKind, sessionId: string): Promise<PendingTask> {
   const q = await getQueue();
-  // Only one pending task per (kind, session) — re-running verify twice is
+  // Only one pending task per (kind, session) - re-running verify twice is
   // pointless and would double-charge the free-tier quota.
   const existing = q.find((t) => t.kind === kind && t.sessionId === sessionId);
   if (existing) return existing;

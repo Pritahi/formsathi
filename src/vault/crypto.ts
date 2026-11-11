@@ -5,10 +5,10 @@
  * ──────
  *  • One AES-GCM-256 key per vault ("the vault key").
  *  • Two ways to derive/obtain it:
- *      1. PASSPHRASE MODE — PBKDF2-SHA256, 310 000 iterations, 16-byte random
+ *      1. PASSPHRASE MODE - PBKDF2-SHA256, 310 000 iterations, 16-byte random
  *         salt. The derived key is imported as NON-EXTRACTABLE and lives only
  *         in memory. Nothing usable is written to disk except a verifier.
- *      2. QUICK MODE — a random AES key generated on this device, imported as
+ *      2. QUICK MODE - a random AES key generated on this device, imported as
  *         non-extractable and stored as a CryptoKey object in IndexedDB (IDB
  *         can structured-clone CryptoKey; the raw bytes can never be read back
  *         by JavaScript, including ours).
@@ -23,7 +23,7 @@
  * ever stored).
  * What this CANNOT protect against: malicious JavaScript running in this
  * origin while the vault is unlocked. That is stated plainly in the README and
- * in the app's vault screen — no over-claiming.
+ * in the app's vault screen - no over-claiming.
  */
 
 const PBKDF2_ITERATIONS = 310_000;

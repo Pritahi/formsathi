@@ -1,5 +1,5 @@
 /**
- * DEMO MODE fixtures — realistic model outputs.
+ * DEMO MODE fixtures - realistic model outputs.
  *
  * Ground rules for these mocks (they matter for judging):
  *  1. Every mock is PLAUSIBLE OUTPUT, not a canned UI state. The interview
@@ -48,7 +48,7 @@ export async function mockDelay(kind: keyof typeof MOCK_LATENCY): Promise<void> 
 /**
  * Which bundled sample does this image look like?
  * In DEMO MODE the UI tells us which sample was picked; for an arbitrary
- * upload we fall back to the scholarship form and say so in notes — the honest
+ * upload we fall back to the scholarship form and say so in notes - the honest
  * behaviour for a mock, and it keeps the overlay aligned.
  */
 export type SampleKey = 'scholarship' | 'bank' | 'unknown';
@@ -90,52 +90,52 @@ export function mockExtract(sample: SampleKey): FormExtraction {
   if (sample === 'bank') {
     return layoutToExtraction(
       BANK_SAMPLE,
-      'Photo thodi tirchi thi — neeche ke 2 fields ka box approx hai. Values ek baar check kar lijiye.',
+      'Photo was slightly tilted - the bottom 2 field boxes are approximate. Please check the values once.',
     );
   }
   if (sample === 'scholarship') {
     return layoutToExtraction(
       SCHOLARSHIP_SAMPLE,
-      'Form saaf padha gaya. IFSC aur percentage wala hissa thoda blur tha.',
+      'Form read cleanly. The IFSC and percentage section was a bit blurry.',
     );
   }
   return layoutToExtraction(
     SCHOLARSHIP_SAMPLE,
-    'Yeh photo sample form se match nahi hui, isliye demo ke liye scholarship form ka structure dikha rahe hain. Asli mode mein model aapki hi form padhega.',
+    'This photo did not match the sample form, so we are showing the scholarship form structure for the demo. In real mode the model will read your own form.',
   );
 }
 
 /* ── Interview turn ───────────────────────────────────────────────────── */
 
-/** Per-field Hinglish question bank. Used by the mock interview model. */
+/** Per-field English question bank. Used by the mock interview model. */
 const QUESTIONS: Record<string, { q: string; hint?: string; expects: InterviewTurn['expects']; options?: string[] }> = {
-  full_name: { q: 'Aapka poora naam kya hai, jaise matric certificate par likha hai?', hint: 'Spelling wahi rakhein jo certificate par hai.', expects: 'free_text' },
-  father_name: { q: 'Papa ka poora naam bata dijiye.', expects: 'free_text' },
-  mother_name: { q: 'Maa ka naam likhna hai — kya likhein?', expects: 'free_text' },
-  date_of_birth: { q: 'Aapki date of birth kya hai? Din, mahina aur saal bata dijiye.', hint: 'Certificate wali date hi likhein.', expects: 'date' },
-  gender: { q: 'Aapka gender kya hai?', expects: 'choice', options: ['Male', 'Female', 'Other'] },
-  category: { q: 'Aap kis category mein aate hain — SC, ST, OBC ya General?', expects: 'choice', options: ['SC', 'ST', 'OBC', 'General'] },
-  mobile: { q: 'Aapka 10 digit ka mobile number kya hai?', hint: '+91 ya space nahi lagayenge.', expects: 'free_text' },
-  aadhaar: { q: 'Aadhaar number dena chahenge? 12 digit, optional hai.', hint: 'Skip kar sakte hain, baad mein bhi chalega.', expects: 'free_text' },
-  address: { q: 'Ghar ka poora pata bataiye — gali, gaon ya shehar.', expects: 'free_text' },
-  district: { q: 'Aapka district kaunsa hai?', expects: 'free_text' },
-  state: { q: 'State kaunsi hai?', expects: 'free_text' },
-  pincode: { q: 'PIN code kya hai? 6 digit wala.', expects: 'free_text' },
-  institution_name: { q: 'School ya college ka naam kya hai?', expects: 'free_text' },
-  course: { q: 'Kaunsa course ya class kar rahe hain?', hint: 'Jaise B.A. Part I.', expects: 'free_text' },
-  roll_number: { q: 'Roll number ya registration number hai to bata dijiye.', hint: 'Na ho to chhod dijiye.', expects: 'free_text' },
-  percentage: { q: 'Pichhle exam mein kitne percent marks aaye?', hint: 'Sirf numbers, jaise 78.40', expects: 'number' },
-  annual_family_income: { q: 'Ghar ki saalana income kitni hai? Sirf numbers mein bataiye.', hint: 'Mahine ki nahi, poore saal ki.', expects: 'number' },
-  bank_account: { q: 'Bank account number bata dijiye.', hint: 'Account aapke hi naam par hona chahiye.', expects: 'free_text' },
-  ifsc: { q: 'IFSC code kya hai? 11 characters ka.', expects: 'free_text' },
-  declaration: { q: 'Declaration se aap agree hain?', expects: 'choice', options: ['Yes, I agree'] },
-  occupation: { q: 'Aap kya kaam karte hain?', hint: 'Jaise student, kheti, mazdoori.', expects: 'free_text' },
-  pan: { q: 'PAN number hai to bataiye, warna chhod dein.', expects: 'free_text' },
-  nominee_name: { q: 'Nominee ka naam kya likhein?', hint: 'Jo aapke saath rehta ho.', expects: 'free_text' },
+  full_name: { q: 'What is your full name, as written on your matric certificate?', hint: 'Keep the spelling the same as on the certificate.', expects: 'free_text' },
+  father_name: { q: 'Please tell us your father\'s full name.', expects: 'free_text' },
+  mother_name: { q: 'What is your mother\'s name?', expects: 'free_text' },
+  date_of_birth: { q: 'What is your date of birth? Please tell us the day, month and year.', hint: 'Write the date as on the certificate.', expects: 'date' },
+  gender: { q: 'What is your gender?', expects: 'choice', options: ['Male', 'Female', 'Other'] },
+  category: { q: 'Which category do you belong to - SC, ST, OBC or General?', expects: 'choice', options: ['SC', 'ST', 'OBC', 'General'] },
+  mobile: { q: 'What is your 10-digit mobile number?', hint: 'Do not add +91 or spaces.', expects: 'free_text' },
+  aadhaar: { q: 'Would you like to provide your Aadhaar number? 12 digits, optional.', hint: 'You can skip it - it can be added later too.', expects: 'free_text' },
+  address: { q: 'Please tell us your full address - street, village or town.', expects: 'free_text' },
+  district: { q: 'Which district are you in?', expects: 'free_text' },
+  state: { q: 'Which state?', expects: 'free_text' },
+  pincode: { q: 'What is the PIN code? 6 digits.', expects: 'free_text' },
+  institution_name: { q: 'What is the name of your school or college?', expects: 'free_text' },
+  course: { q: 'Which course or class are you in?', hint: 'E.g. B.A. Part I.', expects: 'free_text' },
+  roll_number: { q: 'Roll number or registration number, if you have one.', hint: 'Skip it if you do not have one.', expects: 'free_text' },
+  percentage: { q: 'What percentage did you get in the last exam?', hint: 'Numbers only, e.g. 78.40', expects: 'number' },
+  annual_family_income: { q: 'What is your family\'s annual income? Tell us in numbers only.', hint: 'Not per month - the full year.', expects: 'number' },
+  bank_account: { q: 'Please tell us your bank account number.', hint: 'The account should be in your own name.', expects: 'free_text' },
+  ifsc: { q: 'What is the IFSC code? 11 characters.', expects: 'free_text' },
+  declaration: { q: 'Do you agree to the declaration?', expects: 'choice', options: ['Yes, I agree'] },
+  occupation: { q: 'What do you do for work?', hint: 'E.g. student, farming, daily wage.', expects: 'free_text' },
+  pan: { q: 'PAN number, if you have one - otherwise skip.', expects: 'free_text' },
+  nominee_name: { q: 'What should the nominee\'s name be?', hint: 'The person who lives with you.', expects: 'free_text' },
 };
 
 const FALLBACK_QUESTION = (label: string): InterviewTurn => ({
-  question: `"${label}" — ismein kya likhein?`,
+  question: `"${label}" - what should be written in it?`,
   fieldId: null,
   done: false,
   expects: 'free_text',
@@ -155,7 +155,7 @@ export function mockInterviewTurn(state: InterviewState): InterviewTurn {
   if (stillToAsk.length === 0) {
     const filled = Object.keys(state.known).length;
     return {
-      question: `Bas ho gaya! ${filled} fields bhar gaye hain. Ab main form check kar deta hoon.`,
+      question: `Done! ${filled} fields filled. Now I will check the form.`,
       fieldId: null,
       done: true,
       expects: 'free_text',
@@ -203,38 +203,38 @@ export function mockNormalize(
       return {
         value: String(words),
         confidence: 0.88,
-        note: 'Shabdon ko number mein badal diya.',
+        note: 'Converted the words into a number.',
       };
     }
     const digits = v.replace(/[^\d.]/g, '');
     if (digits && /^\d+(\.\d+)?$/.test(digits)) {
       return { value: digits, confidence: 0.95, note: '' };
     }
-    return { value: v, confidence: 0.45, note: 'Yeh number nahi lag raha — dobara bataiye?' };
+    return { value: v, confidence: 0.45, note: 'Does not look like a number - please tell us again?' };
   }
 
   if (field.type === 'date' || key === 'date_of_birth') {
     const iso = parseDateLoose(v);
     if (iso) return { value: iso, confidence: 0.9, note: '' };
-    return { value: v, confidence: 0.4, note: 'Date samajh nahi aayi, DD/MM/YYYY mein bataiye.' };
+    return { value: v, confidence: 0.4, note: 'Did not understand the date - please tell us in DD/MM/YYYY.' };
   }
 
   if (field.type === 'phone' || key === 'mobile') {
     const d = v.replace(/\D/g, '').replace(/^91/, '');
     if (d.length === 10) return { value: d, confidence: 0.95, note: '' };
-    return { value: d || v, confidence: 0.5, note: '10 digit ka number chahiye.' };
+    return { value: d || v, confidence: 0.5, note: 'We need a 10-digit number.' };
   }
 
   if (key === 'aadhaar') {
     const d = v.replace(/\D/g, '');
     if (d.length === 12) return { value: d, confidence: 0.93, note: '' };
-    return { value: d || v, confidence: 0.55, note: 'Aadhaar 12 digit ka hota hai.' };
+    return { value: d || v, confidence: 0.55, note: 'Aadhaar is a 12-digit number.' };
   }
 
   if (key === 'ifsc') {
     const up = v.replace(/\s/g, '').toUpperCase();
     if (/^[A-Z]{4}0[A-Z0-9]{6}$/.test(up)) return { value: up, confidence: 0.92, note: '' };
-    return { value: up, confidence: 0.55, note: 'IFSC 11 characters: 4 letters, 0, 6 characters.' };
+    return { value: up, confidence: 0.55, note: 'IFSC is 11 characters: 4 letters, then 0, then 6 characters.' };
   }
 
   if (field.type === 'email') {
@@ -245,7 +245,7 @@ export function mockNormalize(
   return { value: v, confidence: v.length > 1 ? 0.9 : 0.5, note: '' };
 }
 
-/** "pachas hazaar" / "50 hazaar" / "do lakh" → number */
+/** "fifty thousand" / "50 thousand" / "2 lakh" → number */
 function parseIndianWords(input: string): number | null {
   const s = input.toLowerCase().replace(/,/g, '').trim();
   const wordMap: Record<string, number> = {
@@ -328,7 +328,7 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
       verdicts.push({
         fieldId: 'annual_family_income',
         status: 'fix',
-        reason: `Income "${income}" figures mein nahi hai. Instruction 2 kehta hai sirf numbers likhein, words nahi.`,
+        reason: `Income "${income}" is not in figures. Instruction 2 says write only numbers, not words.`,
         suggestedValue: String(estimateIncome(income) ?? ''),
         rule: 'Instruction 2: income in figures only',
       });
@@ -336,7 +336,7 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
       verdicts.push({
         fieldId: 'annual_family_income',
         status: 'fix',
-        reason: `Income ${numeric} likhi hai. Scheme ki limit ₹2,50,000 saalana hai, isliye yeh mahine ki income lag rahi hai. Poore saal ki income likhiye — jaise ${numeric * 12}.`,
+        reason: `Income ${numeric} looks like a monthly figure - the scheme limit is ₹2,50,000 per year. Please write the full-year income - e.g. ${numeric * 12}.`,
         suggestedValue: String(numeric * 12),
         rule: 'Instruction 1 + 2: annual income, limit Rs 2,50,000',
       });
@@ -344,7 +344,7 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
       verdicts.push({
         fieldId: 'annual_family_income',
         status: 'warn',
-        reason: `₹${numeric.toLocaleString('en-IN')} income scheme ki ₹2,50,000 limit se zyada hai. Yahan form reject ho sakta hai — income certificate se milaan kar lijiye.`,
+        reason: `₹${numeric.toLocaleString('en-IN')} income is above the scheme's ₹2,50,000 limit. The form may be rejected here - please reconcile with your income certificate.`,
         rule: 'Instruction 1: income ceiling Rs 2,50,000',
       });
     } else {
@@ -372,7 +372,7 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
         verdicts.push({
           fieldId: 'mobile',
           status: 'fix',
-          reason: 'Mobile mein space ya hyphen hai — hata dijiye, sirf 10 digit rakhein.',
+          reason: 'Mobile mein space ya hyphen hai - hata dijiye, sirf 10 digit rakhein.',
           rule: 'Instruction 4',
         });
       } else if (declared !== 10) {
@@ -407,7 +407,7 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
       verdicts.push({
         fieldId: 'mobile',
         status: 'fix',
-        reason: 'Mobile mein space ya hyphen hai — hata dijiye.',
+        reason: 'Mobile mein space ya hyphen hai - hata dijiye.',
         rule: 'Instruction 4',
       });
     } else {
@@ -453,14 +453,14 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
       verdicts.push({
         fieldId: 'percentage',
         status: 'fix',
-        reason: `${pct}% possible nahi hai. Marksheet dekh kar 0 se 100 ke beech likhein.`,
+        reason: `${pct}% is not possible. Please write a value between 0 and 100 after checking the marksheet.`,
         rule: 'Instruction 7',
       });
     } else if (!/\.\d{2}$/.test(pct)) {
       verdicts.push({
         fieldId: 'percentage',
         status: 'warn',
-        reason: 'Instruction 7 kehta hai do decimal tak likhein — jaise ' + n.toFixed(2) + '.',
+        reason: 'Instruction 7 says write to two decimal places - e.g. ' + n.toFixed(2) + '.',
         suggestedValue: n.toFixed(2),
         rule: 'Instruction 7: two decimal places',
       });
@@ -474,7 +474,7 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
       verdicts.push({
         fieldId: 'date_of_birth',
         status: 'warn',
-        reason: 'Form DD/MM/YYYY maangta hai, aapke paas YYYY-MM-DD hai. Answer sheet par DD/MM/YYYY mein chhap jayega.',
+        reason: 'The form asks for DD/MM/YYYY, but you have YYYY-MM-DD. It will print as DD/MM/YYYY on the answer sheet.',
         rule: 'Instruction 3: DD/MM/YYYY',
       });
     }
@@ -486,7 +486,7 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
       verdicts.push({
         fieldId: f.id,
         status: 'fix',
-        reason: `"${f.label}" khali hai aur yeh compulsory hai.`,
+        reason: `"${f.label}" is empty and this is compulsory.`,
         rule: 'Instruction 10: incomplete applications rejected',
       });
     }
@@ -503,12 +503,12 @@ export function mockCloudVerify(input: VerifyInput): CloudVerifyResult {
   const overall = Math.max(0.35, Math.min(0.97, 0.95 - fixes * 0.12 - warns * 0.05));
 
   const summary = !input.instructionText.trim()
-    ? `Instruction page nahi mila, isliye sirf format check kiya. ${fixes ? `${fixes} field theek karni hai.` : 'Format theek lag raha hai.'} Scheme ke rules ke liye instruction page bhi scan karein.`
+    ? `No instruction page was received, so only a format check was done. ${fixes ? `${fixes} field(s) need fixing.` : 'The format looks fine.'} Also scan the instruction page for scheme rules.`
     : fixes > 0
-      ? `${fixes} field instruction se match nahi kar rahi${warns ? `, aur ${warns} par dhyan dena hai` : ''}. Neeche wale card par tap karke seedha theek kar lein — phir form reject nahi hoga.`
+      ? `${fixes} field(s) do not match the instructions${warns ? `, and ${warns} need attention` : ''}. Tap the card below to fix them straight away - then the form will not be rejected.`
       : warns > 0
-        ? `Sab compulsory fields bhar gaye hain. ${warns} field par ek nazar daal lein, baaki theek hai.`
-        : `Badhai ho — ${okCount} fields official instructions se match kar rahi hain. Submit se pehle documents ki list dekh lein.`;
+        ? `All compulsory fields are filled. ${warns} field(s) need a glance, the rest is fine.`
+        : `Congratulations - ${okCount} fields match the official instructions. Check the documents list before submitting.`;
 
 
   return {
@@ -562,22 +562,22 @@ export function mockReviewSummary(opts: {
   const lines: string[] = [];
   lines.push(
     red === 0
-      ? `"${opts.formTitle}" ke saare compulsory fields bhar gaye hain.`
-      : `"${opts.formTitle}" mein ${red} field abhi khali hai — wahi pehle bharna hoga.`,
+      ? `"${opts.formTitle}" are filled.`
+      : `"${opts.formTitle}" has ${red} field(s) still empty - those need to be filled first.`,
   );
-  if (yellow > 0) lines.push(`${yellow} field par ek nazar daal lein, format thoda off hai.`);
+  if (yellow > 0) lines.push(`${yellow} field(s) need a glance - the format is slightly off.`);
   lines.push(
     opts.hasInstructions
-      ? 'Yeh check official instruction page se mila kar kiya gaya hai.'
-      : 'Instruction page diya nahi tha, isliye abhi sirf format check hua hai.',
+      ? 'This check was done against the official instruction page.'
+      : 'No instruction page was provided, so only a format check was done.',
   );
-  lines.push(`Total ${green + yellow + red} fields — copy karne ke liye answer sheet neeche hai.`);
+  lines.push(`Total ${green + yellow + red} fields - the answer sheet below is ready to copy.`);
 
   const nextSteps: string[] = [];
-  if (red > 0) nextSteps.push(`${red} khali field bhariye.`);
-  if (yellow > 0) nextSteps.push('Peeli light wale fields ka format theek kijiye.');
-  nextSteps.push('Income certificate aur caste certificate saath rakhein — verification mein maange jayenge.');
-  nextSteps.push('Form print karke signature karein, phir office mein jama karein.');
+  if (red > 0) nextSteps.push(`${red} empty field(s) need filling.`);
+  if (yellow > 0) nextSteps.push('Fix the format on the yellow-light fields.');
+  nextSteps.push('Keep your income certificate and caste certificate handy - they will be asked for during verification.');
+  nextSteps.push('Print the form, sign it, and submit it at the office.');
 
   return {
     summary: lines.join(' '),
@@ -589,18 +589,18 @@ export function mockReviewSummary(opts: {
 /* ── Freeform chat (cloud) ────────────────────────────────────────────── */
 
 const CHAT_ANSWERS: Array<[RegExp, string]> = [
-  [/document|kagaz|certificate/i, 'Income certificate (tehsil se), caste certificate, bank passbook ka pehla page aur last marksheet — yeh chaar cheezein zaroori hain. Sab par aapka naam saaf dikhna chahiye.'],
-  [/reject|mana|cancel/i, 'Reject hone ka sabse bada kaaran hota hai monthly vs annual income, ya mobile mein +91. Aap yahan dono check kar sakte hain — yellow light wale field par tap karein.'],
-  [/last date|aakhri|deadline/i, 'Is form ki last date 31 January 2027 hai. Late application accept nahi hoti, isliye documents pehle hi ready rakhein.'],
-  [/status|kab tak|paisa/i, 'Status SMS aapke mobile par aayega, kyunki form mein wahi number diya hai. Paise seedha bank account mein aate hain — account aapke hi naam par hona chahiye.'],
-  [/offline|internet|net/i, 'Purana form bharna internet ke bina bhi ho jata hai — sab kuch aapke phone mein hi save rehta hai. Bas cloud check ke liye net chahiye, aur woh baad mein apne aap ho jayega.'],
+  [/document|kagaz|certificate/i, 'You will need: income certificate (from the tehsil), caste certificate, the first page of your bank passbook, and your last marksheet - these four are essential. Your name should be clearly visible on all of them.'],
+  [/reject|mana|cancel/i, 'The most common reasons for rejection are monthly-vs-annual income, or +91 in the mobile number. You can check both here - tap the yellow-light field.'],
+  [/last date|aakhri|deadline/i, 'The last date for this form is 31 January 2027. Late applications are not accepted, so keep your documents ready in advance.'],
+  [/status|kab tak|paisa/i, 'You will get an SMS on your mobile, since that is the number on the form. The money goes straight to your bank account - the account should be in your own name.'],
+  [/offline|internet|net/i, 'Filling an old form works even without the internet - everything stays saved on your phone. You only need the net for the cloud check, and that will happen automatically later.'],
 ];
 
 export function mockChat(question: string): string {
   for (const [re, answer] of CHAT_ANSWERS) {
     if (re.test(question)) return answer;
   }
-  return 'Is form ke liye: saare compulsory (*) fields bhar dein, income saalana figures mein likhein, aur mobile bina +91 ke. Koi specific field ho to uska naam bata dein, main wahi samjha deta hoon.';
+  return 'For this form: fill all compulsory (*) fields, write income in figures annually, and write mobile without +91. Tell me the name of any specific field and I will explain it.';
 }
 
 /* ── Helpers used by the UI to seed a realistic vault ─────────────────── */

@@ -1,5 +1,5 @@
 /**
- * The router log drawer — the app's evidence panel.
+ * The router log drawer - the app's evidence panel.
  *
  * This is not a debug console hidden behind a flag; it is a first-class screen,
  * because the hybrid claim has to be inspectable by a judge in five seconds.
@@ -18,9 +18,9 @@ import type { RouteTask } from '../lib/types';
 import type { RouteLogEntry } from '../lib/types';
 
 const TASK_LABELS: Record<RouteTask, string> = {
-  field_extraction: 'Form padhna',
-  interview_turn: 'Sawaal poochna',
-  answer_repair: 'Jawab saaf karna',
+  field_extraction: 'Read form',
+  interview_turn: 'Ask question',
+  answer_repair: 'Clean up answer',
   cloud_verify: 'Cloud verify',
   review_summary: 'Review summary',
   freeform_chat: 'Free chat',
@@ -40,7 +40,7 @@ function fmtMs(ms: number): string {
 }
 
 function fmtBytes(b?: number): string {
-  if (!b) return '—';
+  if (!b) return '-';
   return b < 1024 * 1024 ? `${Math.round(b / 1024)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
 }
 
@@ -61,7 +61,7 @@ export function hybridMapTable(opts: { compact?: boolean } = {}): HTMLElement {
         </td>
         <td>${raw(badgeForPath(d.path))}</td>
         <td class="text-xs">${d.reason}</td>
-        <td class="text-2xs muted">${d.offlineCapable ? 'haan' : 'nahi'} / ${d.privateByDesign ? 'haan' : 'nahi'}</td>
+        <td class="text-2xs muted">${d.offlineCapable ? 'yes' : 'no'} / ${d.privateByDesign ? 'yes' : 'no'}</td>
       </tr>`;
     })
     .join('');
@@ -73,7 +73,7 @@ export function hybridMapTable(opts: { compact?: boolean } = {}): HTMLElement {
       <table class="table">
         <thead>
           <tr>
-            <th>Step</th><th>Kahan chalta hai</th><th>Kyun</th><th>Offline / Private</th>
+            <th>Step</th><th>Where it runs</th><th>Why</th><th>Offline / Private</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
@@ -82,7 +82,7 @@ export function hybridMapTable(opts: { compact?: boolean } = {}): HTMLElement {
     ${
       opts.compact
         ? ''
-        : `<p class="text-2xs muted">Yeh table <code>src/ai/router.ts → ROUTE_TABLE</code> se seedha render hota hai. README ki table bhi wahi hai.</p>`
+        : `<p class="text-2xs muted">This table renders straight from <code>src/ai/router.ts → ROUTE_TABLE</code>. The README table is the same.</p>`
     }
   `;
   return wrap;
@@ -151,7 +151,7 @@ export function openRouterLog(): void {
     const logs = routerState.logs;
     live.innerHTML = logs.length
       ? logs.slice(0, 40).map(logRow).join('')
-      : `<div class="empty"><span class="ic">📋</span>Abhi koi AI call nahi hui.<br /><span class="text-xs">Form padhne par yahan har call dikhegi — kaunsi on-device chali, kaunsi cloud.</span></div>`;
+      : `<div class="empty"><span class="ic">📋</span>No AI calls yet.<br /><span class="text-xs">When you read a form, every call will show here - which ran on-device, which in the cloud.</span></div>`;
   };
   renderLive();
 
@@ -173,19 +173,19 @@ export function openRouterLog(): void {
     <div class="note">
       <span aria-hidden="true">💡</span>
       <div>
-        <b>On-device kab chalta hai?</b><br />
-        Gemini Nano through Chrome's Prompt API — <b>sirf desktop Chrome 139+</b> par, jab model download ho.
-        Phone, Safari aur Firefox par app cloud path chalata hai, aur badge sach batata hai.
+        <b>When does on-device run?</b><br />
+        Gemini Nano via Chrome's Prompt API - <b>only desktop Chrome 139+</b>, once the model is downloaded.
+        On phones, Safari and Firefox the app runs the cloud path, and the badge tells the truth.
       </div>
     </div>
     <dl class="kv">
       <dt>Demo mode</dt><dd>${snap.demoMode ? 'ON (mock models)' : 'OFF (live Firebase AI Logic)'}</dd>
       <dt>Network</dt><dd>${snap.offline ? 'offline' : 'online'}</dd>
-      <dt>Device support</dt><dd>${esc(cap?.support ?? 'probe nahi hua')}</dd>
-      <dt>Browser</dt><dd>${esc(cap?.detail.browser ?? '—')} ${cap?.detail.chromiumMajor ? `(v${cap.detail.chromiumMajor})` : ''}</dd>
-      <dt>Desktop</dt><dd>${cap?.detail.isDesktop ? 'haan' : 'nahi'}</dd>
+      <dt>Device support</dt><dd>${esc(cap?.support ?? 'not probed yet')}</dd>
+      <dt>Browser</dt><dd>${esc(cap?.detail.browser ?? '-')} ${cap?.detail.chromiumMajor ? `(v${cap.detail.chromiumMajor})` : ''}</dd>
+      <dt>Desktop</dt><dd>${cap?.detail.isDesktop ? 'yes' : 'no'}</dd>
       <dt>Prompt API</dt><dd>${cap?.detail.hasPromptApi ? 'present' : 'absent'}</dd>
-      <dt>HTTPS</dt><dd>${cap?.detail.secureContext ? 'haan' : 'nahi'}</dd>
+      <dt>HTTPS</dt><dd>${cap?.detail.secureContext ? 'yes' : 'no'}</dd>
     </dl>
     <p class="text-xs muted">${esc(cap?.reason ?? '')}</p>
     <p class="text-2xs muted-2">On-device tasks: ${snap.onDeviceTasks.join(', ')}<br />Cloud tasks: ${snap.cloudTasks.join(', ')}</p>
@@ -208,31 +208,31 @@ export function openRouterLog(): void {
   footer.className = 'row gap-8';
   const copyBtn = document.createElement('button');
   copyBtn.className = 'btn btn-secondary btn-sm flex1';
-  copyBtn.textContent = '📋 Log copy karein';
+  copyBtn.textContent = '📋 Copy log';
   copyBtn.addEventListener('click', async () => {
     const text = routerState.logs
       .map(
         (l) =>
           `${new Date(l.at).toISOString()} | ${l.task} | requested=${l.requestedPath} | actual=${l.actualPath} | ${l.model} | ${l.latencyMs}ms | img=${l.imageBytes ?? 0}B | redacted=${l.redacted} | ${l.reason}`,
       )
-      .join('\n');
+      .join('\\n');
     try {
       await navigator.clipboard.writeText(text || 'no calls yet');
-      toast('Log clipboard mein copy ho gaya', { tone: 'success' });
+      toast('Log copied to clipboard', { tone: 'success' });
     } catch {
-      toast('Copy nahi ho paya', { tone: 'error' });
+      toast('Copy failed', { tone: 'error' });
     }
   });
   footer.append(copyBtn);
 
   const sheet = openSheet({
     title: 'Model Router log',
-    subtitle: 'Kaunsi call kahan chali — har call ka hisaab',
+    subtitle: 'Which call ran where - an account of every call',
     body,
     footer,
   });
 
-  // Live updates while the drawer is open (the demo Records this screen).
+  // Live updates while the drawer is open (the demo records this screen).
   const off = onRouterLog(() => {
     if (!document.body.contains(sheet.root)) {
       off();
@@ -241,3 +241,4 @@ export function openRouterLog(): void {
     renderLive();
   });
 }
+

@@ -1,9 +1,9 @@
 /**
- * Home / "Ghar".
+ * Home / "Home".
  *
  * The first screen has one job: get the user to point a camera at a form in one
  * tap. Everything else on this screen exists to make the hybrid story legible
- * before the user has done anything — the two-column "kahan chalta hai" strip
+ * before the user has done anything - the two-column "where it runs" strip
  * and the vault status.
  */
 
@@ -74,9 +74,9 @@ function hero(): HTMLElement {
     h(
       'p',
       { class: 'text-xs strong', style: 'color:var(--saffron);letter-spacing:.06em;text-transform:uppercase' },
-      'Form bharne ka dost',
+      'Your form-filling helper',
     ),
-    h('h1', { class: 'mt-8' }, 'Form ki photo lo. ', h('span', { style: 'color:var(--green-700)' }, 'Baaki hum karenge.')),
+    h('h1', { class: 'mt-8' }, 'Take a photo of the form. ', h('span', { style: 'color:var(--green-700)' }, 'We will handle the rest.')),
     h(
       'p',
       { class: 'mt-8 muted', style: 'font-size:15px;line-height:1.5' },
@@ -93,8 +93,8 @@ function demoBanner(): HTMLElement {
     h(
       'div',
       {},
-      h('b', {}, 'DEMO MODE chalu hai. '),
-      'Har AI call ek realistic mock se aati hai — koi key, koi paisa nahi. Vault asli WebCrypto se encrypt hota hai. Settings se live mode on kar sakte hain.',
+      h('b', {}, 'DEMO MODE is on. '),
+      'Every AI call comes from a realistic mock - no key, no cost. The Vault is encrypted with real WebCrypto. Turn on live mode from Settings.',
     ),
   );
 }
@@ -119,7 +119,7 @@ function primaryActions(): HTMLElement {
     'button',
     { class: 'btn btn-primary btn-lg btn-block' },
     h('span', { 'aria-hidden': 'true' }, '📷'),
-    'Form ki photo kheenchein',
+    'Take a photo of the form',
   );
   camera.addEventListener('click', () => go('intake', 'photo'));
 
@@ -127,7 +127,7 @@ function primaryActions(): HTMLElement {
     'button',
     { class: 'btn btn-secondary btn-block mt-8' },
     h('span', { 'aria-hidden': 'true' }, '🖼️'),
-    'Gallery se photo ya PDF chunein',
+    'Choose a photo or PDF from gallery',
   );
   upload.addEventListener('click', () => go('intake', 'upload'));
 
@@ -135,7 +135,7 @@ function primaryActions(): HTMLElement {
     'button',
     { class: 'btn btn-ghost btn-block mt-8' },
     h('span', { 'aria-hidden': 'true' }, '🎬'),
-    'Sample form se demo dekhein (bina camera)',
+    'See the demo with a sample form (no camera)',
   );
   sample.addEventListener('click', () => go('intake', 'samples'));
 
@@ -153,14 +153,14 @@ function vaultStrip(count: number): HTMLElement {
           <div class="card-title">Answer Vault</div>
           <div class="text-xs muted">${
             !state.vaultPresent
-              ? 'Abhi banaya nahi — 30 second mein bana lein'
+              ? 'Not created yet - create it in 30 seconds'
               : locked
-                ? 'Locked hai — unlock karke purane jawab use karein'
-                : `${count} jawab save hain — dusra form turant bharega`
+                ? 'Locked - unlock to reuse old answers'
+                : `${count} answers saved - the next form will fill right away`
           }</div>
         </div>
       </div>
-      <span class="text-xs strong" style="color:var(--green-700)">${locked ? 'Kholein →' : 'Dekhein →'}</span>
+      <span class="text-xs strong" style="color:var(--green-700)">${locked ? 'Open →' : 'View →'}</span>
     </div>
   `;
   card.addEventListener('click', () => go('vault'));
@@ -169,7 +169,7 @@ function vaultStrip(count: number): HTMLElement {
 
 function sessionList(sessions: FormSession[]): HTMLElement {
   const wrap = h('div', { class: 'col gap-8 mb-16' });
-  wrap.append(h('h2', { style: 'font-size:15px;margin-bottom:2px' }, 'Aapke forms'));
+  wrap.append(h('h2', { style: 'font-size:15px;margin-bottom:2px' }, 'Your forms'));
 
   if (sessions.length === 0) {
     wrap.append(
@@ -177,8 +177,8 @@ function sessionList(sessions: FormSession[]): HTMLElement {
         'div',
         { class: 'card empty' },
         h('span', { class: 'ic' }, '📄'),
-        h('div', { class: 'text-sm' }, 'Abhi koi form nahi.'),
-        h('div', { class: 'text-xs muted mt-2' }, 'Upar wale button se pehla form shuru karein.'),
+        h('div', { class: 'text-sm' }, 'No forms yet.'),
+        h('div', { class: 'text-xs muted mt-2' }, 'Start your first form with the button above.'),
       ),
     );
     return wrap;
@@ -192,7 +192,7 @@ function sessionList(sessions: FormSession[]): HTMLElement {
       <div class="row between gap-8">
         <div style="min-width:0">
           <div class="card-title truncate">${escape(s.title)}</div>
-          <div class="text-xs muted mt-2">${relTime(s.updatedAt)} · ${s.extraction?.fields.length ?? 0} fields · ${pct}% bhara</div>
+          <div class="text-xs muted mt-2">${relTime(s.updatedAt)} · ${s.extraction?.fields.length ?? 0} fields · ${pct}% filled</div>
         </div>
         ${lightCounts(counts)}
       </div>
@@ -210,18 +210,18 @@ function sessionList(sessions: FormSession[]): HTMLElement {
       else go('checklist', id);
     });
 
-    const del = h('button', { class: 'icon-btn sm ghost', 'aria-label': 'Form delete karein', title: 'Delete' }, '🗑');
+    const del = h('button', { class: 'icon-btn sm ghost', 'aria-label': 'Delete form', title: 'Delete' }, '🗑');
     del.addEventListener('click', async (ev) => {
       ev.stopPropagation();
       const ok = await confirmSheet({
-        title: 'Form delete karein?',
-        message: `"${s.title}" aur uski photo is phone se hat jayegi. Vault ke jawab safe rahenge.`,
+        title: 'Delete form?',
+        message: `"${s.title}" and its photo will be removed from this phone. Vault answers stay safe.`,
         confirmLabel: 'Delete',
         danger: true,
       });
       if (ok) {
         await deleteSession(id);
-        toast('Form delete ho gaya');
+        toast('Form deleted');
         void go('home');
         location.reload();
       }
@@ -242,7 +242,7 @@ function hybridStrip(): HTMLElement {
   );
   card.innerHTML = `
     <div class="row between">
-      <b class="text-sm">Yeh app kaise kaam karta hai</b>
+      <b class="text-sm">How this app works</b>
       <button class="text-xs strong" style="background:none;border:0;color:var(--green-700);cursor:pointer" id="open-log">Router log →</button>
     </div>
     <div class="row gap-8 mt-8 wrap">
@@ -256,7 +256,7 @@ function hybridStrip(): HTMLElement {
       </div>
     </div>
     <p class="text-xs muted mt-8">
-      Demo mode simulates AI. Live personal content never falls back to cloud. Without Nano, questions and answer mapping use local rules. Cloud verification of personal forms is blocked; live inference is not yet verified.
+      Demo mode simulates AI. Live personal content never falls back to cloud. Without Nano, questions and answer mapping use local rules. Cloud verification of personal forms is blocked; synthetic cloud extraction is verified; real Nano is not yet verified.
     </p>
   `;
   card.querySelector('#open-log')?.addEventListener('click', () => openRouterLog());
@@ -267,14 +267,14 @@ function footerNote(): HTMLElement {
   return h(
     'p',
     { class: 'text-2xs muted-2 center-text', style: 'line-height:1.6' },
-    'FormSathi kisi sarkari portal par khud submit nahi karta. ',
-    'Yeh aapko form bharke deta hai — jama aap khud karein. ',
-    'Aadhaar authentication nahi hoti.',
+    'FormSathi does not submit to any government portal on its own. ',
+    'It gives you a filled form - you submit it yourself. ',
+    'No Aadhaar authentication happens.',
   );
 }
 
 function escape(s: string): string {
-  return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  return s.replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]!);
 }
 
 export { mount };

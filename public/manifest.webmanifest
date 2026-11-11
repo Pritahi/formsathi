@@ -1,7 +1,7 @@
 {
-  "name": "FormSathi — form bharne ka dost",
+  "name": "FormSathi - form-filling helper",
   "short_name": "FormSathi",
-  "description": "Photo kheenchein, Hinglish mein jawab dein, form apne aap bhar jayega. Offline bhi chalta hai, aur aapka data phone se bahar nahi jata.",
+  "description": "Adult-developer prototype: synthetic sample extraction, local answers and an encrypted answer vault.",
   "id": "/",
   "start_url": "./index.html",
   "scope": "./",
@@ -9,7 +9,7 @@
   "orientation": "portrait",
   "background_color": "#f7f4ec",
   "theme_color": "#0f5132",
-  "lang": "hi-IN",
+  "lang": "en",
   "dir": "ltr",
   "categories": ["productivity", "utilities", "government"],
   "icons": [
@@ -34,18 +34,16 @@
   ],
   "shortcuts": [
     {
-      "name": "Naya form",
-      "short_name": "Naya form",
-      "description": "Form ki photo lein aur bharwana shuru karein",
-      "url": "./index.html#/new",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "name": "New form",
+      "short_name": "New form",
+      "description": "Take a photo of a form and start filling it",
+      "url": "./index.html#/new"
     },
     {
-      "name": "Answer Vault",
+      "name": "Vault",
       "short_name": "Vault",
-      "description": "Apne save kiye hue jawab dekhein",
-      "url": "./index.html#/vault",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "description": "Open your encrypted Answer Vault",
+      "url": "./index.html#/vault"
     }
   ]
 }

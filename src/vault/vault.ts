@@ -1,5 +1,5 @@
 /**
- * The Answer Vault — encrypted, on-device, reusable answers.
+ * The Answer Vault - encrypted, on-device, reusable answers.
  *
  * Product rule that the whole hybrid story rests on:
  *   PERSONAL ANSWERS NEVER GO TO FIRESTORE.
@@ -32,7 +32,7 @@ import {
 
 /** A decrypted answer record. */
 export interface VaultRecord {
-  /** Canonical key (slug) — the id used for cross-form matching. */
+  /** Canonical key (slug) - the id used for cross-form matching. */
   id: string;
   /** Human label of the field this came from, for the vault screen. */
   label: string;
@@ -105,7 +105,7 @@ const SENSITIVE_PATTERNS: RegExp[] = [
  *   • "date of birth" BEFORE any generic date handling.
  *
  * A wrong match writes one person's data into another person's field, which is
- * the single worst failure this app can have — so the classifier is deliberately
+ * the single worst failure this app can have - so the classifier is deliberately
  * narrow: when nothing matches confidently it returns a slug and the vault does
  * NOT pre-fill that field.
  */
@@ -215,7 +215,7 @@ export async function getVaultMeta(): Promise<VaultMeta | null> {
 export async function createVault(
   opts: { mode: VaultMode; passphrase?: string },
 ): Promise<void> {
-  if (!hasWebCrypto()) throw new Error('Is browser mein WebCrypto nahi hai (HTTPS chahiye).');
+  if (!hasWebCrypto()) throw new Error('This browser does not have WebCrypto (HTTPS required).');
   if (opts.mode === 'passphrase') {
     const pw = (opts.passphrase ?? '').trim();
     if (pw.length < 6) throw new Error('Passphrase kam se kam 6 characters ki rakhein.');
@@ -290,7 +290,7 @@ export function lockVault(): void {
 
 /**
  * Destroy the vault: wipes encrypted records, key and meta.
- * Photo blobs and sessions are separate — the Settings screen asks separately.
+ * Photo blobs and sessions are separate - the Settings screen asks separately.
  */
 export async function destroyVault(): Promise<void> {
   vaultKey = null;
@@ -303,7 +303,7 @@ export async function destroyVault(): Promise<void> {
 /* ── read / write ──────────────────────────────────────────────────────── */
 
 function requireKey(): CryptoKey {
-  if (!vaultKey) throw new Error('Vault locked hai — pehle unlock karein.');
+  if (!vaultKey) throw new Error('Vault locked hai - pehle unlock karein.');
   return vaultKey;
 }
 
@@ -358,7 +358,7 @@ export async function getAnswer(id: string): Promise<VaultRecord | null> {
       uses: rec.uses,
     };
   } catch {
-    // Wrong key or tampered record — treat as absent rather than crash.
+    // Wrong key or tampered record - treat as absent rather than crash.
     return null;
   }
 }

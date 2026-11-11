@@ -1,5 +1,6 @@
+import { ensureAppCheck } from './appCheck';
 /**
- * Firebase wiring — every function here is OPTIONAL and no-ops when
+ * Firebase wiring - every function here is OPTIONAL and no-ops when
  * config/config.ts still has placeholders.
  *
  * Spark-plan-only design decisions:
@@ -47,7 +48,7 @@ let initPromise: Promise<FirebaseStatus> | null = null;
 export async function initFirebase(): Promise<FirebaseStatus> {
   if (!FIREBASE_CONFIGURED) {
     firebaseStatus.configured = false;
-    firebaseStatus.error = 'Firebase config missing — local-only mode (vault still works).';
+    firebaseStatus.error = 'Firebase config missing - local-only mode (vault still works).';
     return firebaseStatus;
   }
   if (initPromise) return initPromise;
@@ -67,6 +68,7 @@ export async function initFirebase(): Promise<FirebaseStatus> {
 
       const cfg = FIREBASE_CONFIG as FirebaseWebConfig;
       const firebaseApp = app.getApps().length ? app.getApp() : app.initializeApp(cfg);
+      ensureAppCheck(firebaseApp);
 
       dbRef = fs.getFirestore(firebaseApp);
       storageRef = null; // Spark project has no Storage; images stay local.
@@ -98,7 +100,7 @@ export function currentUid(): string | null {
   return firebaseStatus.uid;
 }
 
-/** The Firestore document for a session. Metadata only — no answer values. */
+/** The Firestore document for a session. Metadata only - no answer values. */
 export interface SessionDoc {
   id: string;
   uid: string;
@@ -145,7 +147,7 @@ export async function deleteSessionMetadata(sessionId: string): Promise<void> {
   try {
     await fsMod.deleteDoc(fsMod.doc(dbRef, COL.sessions, sessionId));
   } catch {
-    /* offline or rules — fine */
+    /* offline or rules - fine */
   }
 }
 

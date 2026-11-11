@@ -119,7 +119,7 @@ export const STORAGE_PREFIX = 'forms';
 /**
  * True when the Firebase placeholders have not been replaced. Everything that
  * touches Firebase must check this through `isFirebaseConfigured()` in
- * lib/firebase.ts — the app degrades to local-only without throwing.
+ * lib/firebase.ts - the app degrades to local-only without throwing.
  */
 export const FIREBASE_CONFIGURED: boolean = !Object.values(FIREBASE_CONFIG).some((v) =>
   String(v).includes('PASTE_'),

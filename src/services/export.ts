@@ -1,5 +1,5 @@
 /**
- * Fill output — MVP feature 5.
+ * Fill output - MVP feature 5.
  *
  * Three deliverables, all generated on-device with no dependency:
  *   1. ANSI overlay   : the original form image with each answer drawn into the
@@ -69,7 +69,7 @@ export async function renderOverlay(session: FormSession, source: Blob): Promise
         ctx.font = `italic ${Math.max(12, Math.min(h * 0.5, canvas.width / 60))}px system-ui, sans-serif`;
         ctx.fillStyle = LIGHT_COLORS.red.stroke;
         ctx.textBaseline = 'middle';
-        ctx.fillText('— khali —', x + 10, y + h / 2);
+        ctx.fillText('- empty -', x + 10, y + h / 2);
       }
 
       // A small light dot at the box's top-right so a printed page still shows
@@ -81,7 +81,7 @@ export async function renderOverlay(session: FormSession, source: Blob): Promise
       ctx.fill();
     }
 
-    // Footer strip with provenance — proves the hybrid split on the artefact
+    // Footer strip with provenance - proves the hybrid split on the artefact
     // itself, not just in the UI.
     const stripH = Math.max(34, canvas.height * 0.035);
     ctx.fillStyle = 'rgba(16,22,30,0.88)';
@@ -89,9 +89,8 @@ export async function renderOverlay(session: FormSession, source: Blob): Promise
     ctx.fillStyle = '#ffffff';
     ctx.font = `${Math.max(12, stripH * 0.42)}px system-ui, sans-serif`;
     ctx.textBaseline = 'middle';
-    const verifiedCount = Object.values(session.answers).filter((a) => a.cloudVerified).length;
     ctx.fillText(
-      `FormSathi · on-device interview · ${verifiedCount} fields cloud-verified · ${new Date().toLocaleDateString('en-IN')}`,
+      `FormSathi · local answer sheet · review your answers · ${new Date().toLocaleDateString('en-IN')}`,
       stripH * 0.5,
       canvas.height - stripH / 2,
     );
@@ -166,26 +165,26 @@ export function buildAnswerSheet(session: FormSession, opts: SheetOptions = {}):
       ? field.type === 'date'
         ? formatDateForForm(answer.value)
         : answer.value
-      : '(khali)';
+      : '(empty)';
     lines.push(`${mark} ${field.label}: ${value}`);
 
     if (includeFlags && answer?.flagReason) {
       lines.push(`   → ${answer.flagReason}`);
     }
     if (includeFlags && answer?.suggestion) {
-      lines.push(`   → sudhar: ${answer.suggestion}`);
+      lines.push(`   → correction: ${answer.suggestion}`);
     }
   }
 
   lines.push('');
-  lines.push(`Kul ${fields.length} fields — ${counts.green} theek, ${counts.yellow} dekh lein, ${counts.red} khali.`);
+  lines.push(`Total ${fields.length} fields - ${counts.green} good, ${counts.yellow} review, ${counts.red} empty.`);
   if (session.verifyStatus === 'queued') {
-    lines.push('Cloud verify queue mein hai — net aane par apne aap ho jayega.');
+    lines.push('Cloud verify is queued - it will run automatically when the network returns.');
   } else if (session.verify) {
     lines.push(`Cloud verify: ${session.verify.summary}`);
   }
   lines.push('');
-  lines.push('FormSathi se banaya — on-device interview, cloud-verified.');
+  lines.push('Made with FormSathi. Local answer sheet, not official validation.');
   return lines.join('\n');
 }
 

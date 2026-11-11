@@ -95,7 +95,7 @@ export async function probeOnDevice(timeoutMs = 2500): Promise<CapabilityReport>
   if (!lm) {
     return {
       support: 'unsupported',
-      reason: `${detail.browser} mein on-device model API nahi hai — cloud path chalega.`,
+      reason: `${detail.browser} does not have the on-device model API - personal answers stay local; only synthetic samples may use the cloud.`,
       detail,
     };
   }
@@ -103,7 +103,7 @@ export async function probeOnDevice(timeoutMs = 2500): Promise<CapabilityReport>
   if (!detail.secureContext) {
     return {
       support: 'unsupported',
-      reason: 'HTTPS ke bina on-device model nahi chal sakta — cloud path chalega.',
+      reason: 'HTTPS ke bina on-device model nahi chal sakta - personal answers local rahenge; sirf synthetic samples cloud use kar sakte hain.',
       detail,
       };
   }
@@ -133,7 +133,7 @@ export async function probeOnDevice(timeoutMs = 2500): Promise<CapabilityReport>
   if (normalized === 'timeout') {
     return {
       support: 'unavailable',
-      reason: 'On-device model ne jawab nahi diya — cloud path use karenge.',
+      reason: 'On-device model ne jawab nahi diya - personal answers local rahenge.',
       detail,
     };
   }
@@ -145,22 +145,22 @@ export async function probeOnDevice(timeoutMs = 2500): Promise<CapabilityReport>
   if (normalized.includes('downloadable')) {
     return {
       support: 'downloadable',
-      reason: 'Gemini Nano download ho sakta hai (~2 GB) — Settings se download karein.',
+      reason: 'Gemini Nano download ho sakta hai (~2 GB) - Settings se download karein.',
       detail,
     };
   }
   if (normalized.includes('downloading')) {
     return {
       support: 'downloading',
-      reason: 'Gemini Nano download chal raha hai — poora hone par on-device chalega.',
+      reason: 'Gemini Nano download chal raha hai - poora hone par on-device chalega.',
       detail,
     };
   }
   return {
     support: 'unavailable',
     reason: detail.isDesktop
-      ? 'Is device par Gemini Nano available nahi hai — cloud path chalega.'
-      : 'Mobile browser par on-device model support nahi hai — cloud path chalega.',
+      ? 'Gemini Nano is not available on this device - personal answers stay local; only synthetic samples may use the cloud.'
+      : 'On-device model is not supported on mobile browsers - personal answers stay local; only synthetic samples may use the cloud.',
     detail,
   };
 }
