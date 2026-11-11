@@ -11,7 +11,7 @@ Captions explicitly say extraction is a mock fixture and real Nano execution is
 not verified. The answer-sheet scene says no official instruction page was
 supplied. Intended architecture is labeled as unverified.
 
-Before publishing: replace stale app screenshots after the privacy hardening,
+App screenshots were refreshed after privacy hardening. Before publishing,
 show the actual source badge for every real call, and re-record successful
 synthetic cloud inference if provider setup is completed. Do not imply the mock
 video proves hybrid AI execution. Publication title/description need approval.
