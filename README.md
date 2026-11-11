@@ -12,7 +12,7 @@ verified Gemini inference.
   interview, checklist and answer sheet use mock AI. The WebCrypto vault is real.
 - [Firebase deployment](https://formsathi.web.app/): hosting is deployed. Real bundled synthetic scholarship extraction returned 21 fields via Gemini
   3.5 Flash Lite in 6.2 seconds. Production App Check is configured.
-- TypeScript check, production build and **45 unit tests pass** locally.
+- TypeScript check, production build and **47 unit tests pass** locally.
 - Real Gemini Nano execution is **not verified**. Local answer capture was
   verified with 0 KB uploaded. There is no Android wrapper yet.
 
@@ -42,6 +42,18 @@ The Firebase production deployment is built in Live mode. Source defaults to Dem
 Mock verification and confidence scores are illustrative. They do not establish
 eligibility for a scholarship or certify that an official form is correct.
 Always check the issuing authority's current instructions yourself.
+
+## Verified SDK hybrid implementation
+
+Bundled synthetic sample extraction now calls Firebase AI Logic with
+`InferenceMode.PREFER_ON_DEVICE`. The SDK can choose Nano or fall back to
+`gemini-3.5-flash-lite`. Personal images and answers use a separate
+`ONLY_ON_DEVICE` model, never this hybrid fallback model. All cloud-capable
+calls require the existing adult-developer synthetic-sample confirmation.
+
+App Check initializes before the AI service. Route badges use the SDK response's
+`inferenceSource`. A cloud fallback is not evidence that Nano executed.
+See [Desktop Nano demo runbook](docs/desktop-nano-demo.md).
 
 ## Inference and privacy boundaries
 

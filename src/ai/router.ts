@@ -228,7 +228,7 @@ export async function downloadOnDeviceModel(
     routerState.onDeviceDisabled = false;
     return;
   }
-  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config missing - DEMO MODE chalu karein.');
+  if (!FIREBASE_CONFIGURED) throw new Error('Firebase config missing. Use Demo mode.');
   await initAi(FIREBASE_CONFIG);
   await initializeDeviceModel((p) => onProgress?.(p));
   routerState.onDeviceDisabled = false;
@@ -409,8 +409,8 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
     prompt: promptText,
     image: args.image ? { base64: args.image.base64, mimeType: args.image.mimeType } : undefined,
     json: true,
-    schema: plan.effective === 'cloud' ? EXTRACTION_SCHEMA : undefined,
-    prefer: args.sample === 'scholarship' || args.sample === 'bank' ? plan.effective : 'on-device',
+    schema: args.sample === 'scholarship' || args.sample === 'bank' ? EXTRACTION_SCHEMA : undefined,
+    prefer: args.sample === 'scholarship' || args.sample === 'bank' ? 'hybrid' : 'on-device',
     syntheticOnly: args.sample === 'scholarship' || args.sample === 'bank',
     maxOutputTokens: 8192,
     temperature: 0.2,
@@ -425,10 +425,10 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
     const repair = await callModel(FIREBASE_CONFIG, {
       image: args.image ? { base64: args.image.base64, mimeType: args.image.mimeType } : undefined,
       maxOutputTokens: 8192,
-      schema: plan.effective === 'cloud' ? EXTRACTION_SCHEMA : undefined,
-      prompt: `Read the attached blank synthetic form and return every fillable field. Extraction JSON invalid tha (${String(err)}). Sirf valid JSON do, shape: {"title","formType","authority","fields":[{"label","type","required","confidence"}],"notes":[]}`,
+      schema: args.sample === 'scholarship' || args.sample === 'bank' ? EXTRACTION_SCHEMA : undefined,
+      prompt: `Read the attached blank synthetic form and return every fillable field. Extraction JSON was invalid (${String(err)}). Return only valid JSON, shape: {"title","formType","authority","fields":[{"label","type","required","confidence"}],"notes":[]}`,
       json: true,
-      prefer: call.path,
+      prefer: args.sample === 'scholarship' || args.sample === 'bank' ? 'hybrid' : 'on-device',
       syntheticOnly: args.sample === 'scholarship' || args.sample === 'bank',
       temperature: 0,
     });
@@ -446,7 +446,7 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
     redacted: false,
     ok: true,
     promptText,
-    fallbackReason: call.fellBack ? `Nano se cloud par fallback: ${plan.reason}` : undefined,
+    fallbackReason: call.fellBack ? `SDK hybrid cloud fallback: ${plan.reason}` : undefined,
   });
 
   trackDeviceOutcome(call.path);

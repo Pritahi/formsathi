@@ -1,27 +1,9 @@
 import { ensureAppCheck } from '../services/appCheck';
-/**
- * The real Firebase AI Logic path. Dormant until config/config.ts is filled in
- * and DEMO MODE is off - but it is complete, compiling code, not a stub.
- *
- * Two model surfaces, exactly as the SDK exposes them:
- *
- *  HYBRID (on-device preferred):
- *    getGenerativeModel(ai, {
- *      mode: InferenceMode.PREFER_ON_DEVICE,
- *      inCloudParams:  { model: CLOUD_MODEL, generationConfig },
- *      onDeviceParams: { createOptions: { expectedInputs / expectedOutputs } },
- *    })
- *  The SDK falls back to the in-cloud model automatically when Nano is
- *  unavailable, and (crucially for us) rejects requests it cannot run
- *  on-device - images that are not JPEG/PNG, or anything with function
- *  responses. We additionally keep every on-device request single-turn.
- *
- *  CLOUD ONLY:
- *    getGenerativeModel(ai, { model: CLOUD_REASONING_MODEL, generationConfig })
- *
- * The response tells us which half actually ran: `response.inferenceSource`
- * is 'on_device' or 'in_cloud'. That value is what the UI badge and the README
- * table are built from - no guessing, no faking.
+/** Firebase AI Logic execution boundary.
+ * Bundled synthetic samples may use PREFER_ON_DEVICE with cloud fallback.
+ * Personal content always uses ONLY_ON_DEVICE and never retries in cloud.
+ * App Check is initialized before the AI service. Source badges use the
+ * response inferenceSource rather than a capability guess.
  */
 
 import type { Part } from 'firebase/ai';
@@ -45,7 +27,7 @@ export interface AiCallOptions {
   temperature?: number;
   maxOutputTokens?: number;
   /** Preferred half. 'on-device' uses PREFER_ON_DEVICE, 'cloud' is cloud-only. */
-  prefer: 'on-device' | 'cloud';
+  prefer: 'on-device' | 'cloud' | 'hybrid';
   /** Only bundled, synthetic content may use the unpaid cloud API. */
   syntheticOnly?: boolean;
 }
@@ -67,6 +49,7 @@ export interface DeviceInitProgress {
 let aiModule: FirebaseAiModule | null = null;
 let appModule: FirebaseAppModule | null = null;
 let genModel: import('firebase/ai').GenerativeModel | null = null;
+let hybridModel: import('firebase/ai').GenerativeModel | null = null;
 let cloudModel: import('firebase/ai').GenerativeModel | null = null;
 let initPromise: Promise<void> | null = null;
 let deviceInitialized = false;
@@ -90,22 +73,25 @@ export async function initAi(config: FirebaseWebConfig): Promise<void> {
       ensureAppCheck(firebaseApp);
     const aiInstance = ai.getAI(firebaseApp, { backend: new ai.GoogleAIBackend() });
 
-    // ── HYBRID MODEL ────────────────────────────────────────────────────
-    // PREFER_ON_DEVICE: try Nano, fall back to cloud. The SDK's own fallback
-    // is what makes the phone/Safari story work without any special casing.
+    const onDeviceParams = {
+      createOptions: {
+        expectedInputs: [{ type: 'text' as const, languages: ['en'] }, { type: 'image' as const }],
+        expectedOutputs: [{ type: 'text' as const, languages: ['en'] }],
+      },
+    };
+    // Personal content: SDK-enforced no-cloud boundary.
     genModel = ai.getGenerativeModel(aiInstance, {
       mode: ai.InferenceMode.ONLY_ON_DEVICE,
+      onDeviceParams,
+    });
+    // Genuine hybrid inference, restricted by callModel to synthetic samples.
+    hybridModel = ai.getGenerativeModel(aiInstance, {
+      mode: ai.InferenceMode.PREFER_ON_DEVICE,
       inCloudParams: {
         model: CLOUD_MODEL,
-        generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
+        generationConfig: { temperature: 0.2, maxOutputTokens: 8192 },
       },
-      onDeviceParams: {
-        createOptions: {
-          // Nano needs to be told it may receive images and will emit text.
-          expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'image' }],
-          expectedOutputs: [{ type: 'text', languages: ['en'] }],
-        },
-      },
+      onDeviceParams,
     });
 
     // ── CLOUD-ONLY MODEL (verify + review + freeform chat) ──────────────
@@ -129,6 +115,7 @@ export async function initializeDeviceModel(onProgress?: DeviceInitProgress): Pr
     return;
   }
   await genModel.initializeDeviceModel((p) => onProgress?.(p));
+  await hybridModel!.initializeDeviceModel((p) => onProgress?.(p));
   deviceInitialized = true;
 }
 
@@ -146,7 +133,7 @@ export async function deviceAvailability(): Promise<string | null> {
   const lm = g.LanguageModel ?? g.ai?.languageModel;
   if (!lm?.availability) return null;
   try {
-    return await lm.availability();
+    return await lm.availability({ expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'image' }], expectedOutputs: [{ type: 'text', languages: ['en'] }] });
   } catch {
     return null;
   }
@@ -171,13 +158,13 @@ function buildParts(opts: AiCallOptions): Part[] {
  * reports truthfully what happened.
  */
 export async function callModel(config: FirebaseWebConfig, opts: AiCallOptions): Promise<AiCallResult> {
-  if (opts.prefer === 'cloud' && (!opts.syntheticOnly || typeof sessionStorage === 'undefined' || sessionStorage.getItem('formsathi-cloud-eligible') !== 'yes')) {
+  if ((opts.prefer === 'cloud' || opts.prefer === 'hybrid') && (!opts.syntheticOnly || typeof sessionStorage === 'undefined' || sessionStorage.getItem('formsathi-cloud-eligible') !== 'yes')) {
     throw new Error('Privacy guard: personal or free-form content cannot use unpaid cloud inference. Use the local workflow or synthetic samples.');
   }
   await initAi(config);
   const started = performance.now();
 
-  const model = opts.prefer === 'cloud' ? cloudModel! : genModel!;
+  const model = opts.prefer === 'cloud' ? cloudModel! : opts.prefer === 'hybrid' ? hybridModel! : genModel!;
   const parts = buildParts(opts);
 
   // Per-call generation config. On-device honours responseMimeType; cloud also
@@ -187,7 +174,7 @@ export async function callModel(config: FirebaseWebConfig, opts: AiCallOptions):
     maxOutputTokens: opts.maxOutputTokens ?? 2048,
   };
   if (opts.json) generationConfig.responseMimeType = 'application/json';
-  if (opts.json && opts.schema && opts.prefer === 'cloud') {
+  if (opts.json && opts.schema && opts.prefer !== 'on-device') {
     generationConfig.responseSchema = opts.schema;
   }
 
@@ -207,6 +194,7 @@ export async function callModel(config: FirebaseWebConfig, opts: AiCallOptions):
 
   const response = result.response;
   const source = response.inferenceSource ?? 'in_cloud';
+  if (opts.prefer === 'on-device' && source !== 'on_device') throw new Error('Privacy guard: device-only inference did not report an on-device source.');
   const text = response.text();
   const latencyMs = Math.round(performance.now() - started);
 
@@ -215,7 +203,7 @@ export async function callModel(config: FirebaseWebConfig, opts: AiCallOptions):
     path: source === 'on_device' ? 'on-device' : 'cloud',
     model: source === 'on_device' ? 'gemini-nano (Chrome built-in)' : CLOUD_REASONING_MODEL,
     latencyMs,
-    fellBack: opts.prefer === 'on-device' && source !== 'on_device',
+    fellBack: opts.prefer === 'hybrid' && source !== 'on_device',
   };
 }
 

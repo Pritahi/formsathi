@@ -10,6 +10,12 @@ describe('unpaid cloud boundary', () => {
   it('requires eligible-adult session confirmation even for synthetic content', async () => {
     await expect(callModel(FIREBASE_CONFIG, { prompt: 'fictional', prefer: 'cloud', syntheticOnly: true })).rejects.toThrow('Privacy guard');
   });
+  it('rejects personal content on the hybrid fallback path', async () => {
+    await expect(callModel(FIREBASE_CONFIG, { prompt: 'private answer', prefer: 'hybrid' })).rejects.toThrow('Privacy guard');
+  });
+  it('requires eligibility for synthetic hybrid fallback', async () => {
+    await expect(callModel(FIREBASE_CONFIG, { prompt: 'fictional', prefer: 'hybrid', syntheticOnly: true })).rejects.toThrow('Privacy guard');
+  });
   it('keeps answer normalization local when Nano is unavailable', async () => {
     setDemoMode(false); routerState.capability = null;
     const out = await routeNormalizeAnswer({ field: { id: 'name', label: 'Name', type: 'text' }, raw: 'Example Name' });
@@ -18,7 +24,7 @@ describe('unpaid cloud boundary', () => {
   });
   it('keeps interview state local when Nano is unavailable', async () => {
     setDemoMode(false); routerState.capability = null;
-    const out = await routeInterviewTurn({ state: { formTitle: 'Sample', formType: 'other', known: {}, remaining: [{ id: 'name', label: 'Name', type: 'text' }], currentFieldId: 'name', language: 'hinglish' } });
+    const out = await routeInterviewTurn({ state: { formTitle: 'Sample', formType: 'other', known: {}, remaining: [{ id: 'name', label: 'Name', type: 'text' }], currentFieldId: 'name', language: 'en' } });
     expect(out.log.actualPath).toBe('local');
   });
 });

@@ -9,8 +9,8 @@
  *     Chromium on Android (Android needs a native app + a Nano-supported
  *     device).
  *
- * The app never pretends otherwise. When the probe says no, every AI step runs
- * in the cloud and the badge says so; the router log records the reason. That
+ * The app never pretends otherwise. When the probe says no, personal answers use local rules
+ * and only synthetic sample extraction may use cloud; the router log records the reason. That
  * honesty is a design requirement from the brief's red-team round, not a
  * limitation to hide.
  */
@@ -103,7 +103,7 @@ export async function probeOnDevice(timeoutMs = 2500): Promise<CapabilityReport>
   if (!detail.secureContext) {
     return {
       support: 'unsupported',
-      reason: 'HTTPS ke bina on-device model nahi chal sakta - personal answers local rahenge; sirf synthetic samples cloud use kar sakte hain.',
+      reason: 'On-device inference needs HTTPS. Personal answers stay local; only synthetic samples may use cloud.',
       detail,
       };
   }
@@ -112,7 +112,7 @@ export async function probeOnDevice(timeoutMs = 2500): Promise<CapabilityReport>
   try {
     const probe = (async () => {
       if (lm.availability) {
-        const a = await lm.availability();
+        const a = await lm.availability({ expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'image' }], expectedOutputs: [{ type: 'text', languages: ['en'] }] });
         return typeof a === 'string' ? a : 'unavailable';
       }
       if (lm.capabilities) {
@@ -133,26 +133,26 @@ export async function probeOnDevice(timeoutMs = 2500): Promise<CapabilityReport>
   if (normalized === 'timeout') {
     return {
       support: 'unavailable',
-      reason: 'On-device model ne jawab nahi diya - personal answers local rahenge.',
+      reason: 'The on-device model did not respond. Personal answers stay local.',
       detail,
     };
   }
 
   // Chrome reports "available" | "downloadable" | "downloading" | "unavailable".
   if (normalized.includes('available') && !normalized.includes('unavailable')) {
-    return { support: 'available', reason: 'Gemini Nano is device par ready hai.', detail };
+    return { support: 'available', reason: 'Gemini Nano is ready on this device.', detail };
   }
   if (normalized.includes('downloadable')) {
     return {
       support: 'downloadable',
-      reason: 'Gemini Nano download ho sakta hai (~2 GB) - Settings se download karein.',
+      reason: 'Gemini Nano can be downloaded. Use Download Nano in Settings on an unmetered connection.',
       detail,
     };
   }
   if (normalized.includes('downloading')) {
     return {
       support: 'downloading',
-      reason: 'Gemini Nano download chal raha hai - poora hone par on-device chalega.',
+      reason: 'Gemini Nano is downloading. On-device inference will be ready when it finishes.',
       detail,
     };
   }
@@ -180,8 +180,8 @@ export function deviceSupportLabel(support: DeviceSupport): string {
     case 'downloading':
       return 'Downloading model';
     case 'unavailable':
-      return 'Cloud only on this device';
+      return 'Nano unavailable; personal answers local';
     default:
-      return 'Cloud only (browser)';
+      return 'Nano unsupported; personal answers local';
   }
 }
