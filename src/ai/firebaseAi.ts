@@ -96,7 +96,7 @@ export async function initAi(config: FirebaseWebConfig): Promise<void> {
 
     // ── CLOUD-ONLY MODEL (verify + review + freeform chat) ──────────────
     cloudModel = ai.getGenerativeModel(aiInstance, {
-      model: opts.prefer === 'hybrid' ? CLOUD_MODEL : CLOUD_REASONING_MODEL,
+      model: CLOUD_REASONING_MODEL,
       generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
     });
   })();
