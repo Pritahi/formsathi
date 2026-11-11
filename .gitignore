@@ -9,3 +9,5 @@ dist/
 test/shots/
 .coverage/
 functions/lib/
+
+.firebase/
