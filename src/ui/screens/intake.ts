@@ -12,7 +12,7 @@
  * done/failed, each with honest copy.
  */
 
-import { h, toast, openSheet } from '../dom';
+import { h, toast, openSheet, confirmSheet } from '../dom';
 import { go, screenHeader } from '../shell';
 import { badge, provenanceLine } from '../badges';
 import { openRouterLog } from '../routerLog';
@@ -22,7 +22,7 @@ import { newSession, saveSession, saveImage } from '../../services/sessions';
 import { state } from '../../store/app';
 import { SCHOLARSHIP_SAMPLE, BANK_SAMPLE } from '../../data/sampleLayouts';
 import { formatBytes } from '../../lib/util';
-import { uploadFormImage, currentUid } from '../../services/firebase';
+
 import type { FormSession } from '../../lib/types';
 import type { SampleKey } from '../../ai/mock/fixtures';
 
@@ -190,7 +190,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
         'p',
         { class: 'text-sm muted mt-8' },
         isReading
-          ? 'Gemini Nano aapke phone par hi fields nikaal raha hai. Photo kahin upload nahi ho rahi.'
+          ? 'Demo mein mock extraction. Live mein actual source result ke badge par dikhega; personal forms ke liye cloud fallback band hai.'
           : 'Photo chhoti kar raha hoon taaki data kam lage.',
       ),
       preview
@@ -204,7 +204,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       h(
         'div',
         { class: 'row center gap-8 mt-16' },
-        badge({ kind: 'on-device', label: 'On-device', title: 'Form padhna on-device chalta hai' }),
+        h('span', { class: 'text-xs muted' }, 'Processing - source result ke baad'),
         state.settings.demoMode ? badge({ kind: 'demo' }) : '',
       ),
       preview
@@ -234,6 +234,15 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
   }
 
   async function handleSample(key: 'scholarship' | 'bank') {
+    if (!state.settings.demoMode && sessionStorage.getItem('formsathi-cloud-eligible') !== 'yes') {
+      const eligible = await confirmSheet({
+        title: 'Adult developer prototype - synthetic samples only',
+        message: 'Live cloud mode is only for developers age 18+ outside the EEA, Switzerland and UK. Only bundled fictional samples are sent to the unpaid Gemini API; Google may use these inputs/outputs to improve its products. Never send personal, sensitive or confidential data. Confirm that you meet these limits. Otherwise use Demo mode.',
+        confirmLabel: 'I meet these limits',
+      });
+      if (!eligible) return;
+      sessionStorage.setItem('formsathi-cloud-eligible', 'yes');
+    }
     const layout = key === 'bank' ? BANK_SAMPLE : SCHOLARSHIP_SAMPLE;
     stage = 'compressing';
     paint();
@@ -278,11 +287,7 @@ export async function renderIntake(host: HTMLElement, intent?: string): Promise<
       await saveSession(session, true);
       await saveImage(session.id, image.blob);
 
-      // Optional: keep the user's own photo in their private bucket. Never
-      // blocks; failure is fine (Spark quota, offline, rules).
-      if (currentUid() && !state.settings.simulatedOffline) {
-        void uploadFormImage(session.id, currentUid()!, image.blob);
-      }
+      // Images stay in local IndexedDB. No Storage upload or billing dependency.
 
       showExtractionSummary(session, log);
     } catch (err) {

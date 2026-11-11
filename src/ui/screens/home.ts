@@ -80,7 +80,7 @@ function hero(): HTMLElement {
     h(
       'p',
       { class: 'mt-8 muted', style: 'font-size:15px;line-height:1.5' },
-      'Scholarship, exam ya sarkari form — camera se photo kheenchein, Hinglish mein sawaalon ke jawab dein. Form khud bhar jayega, aur aapka Aadhaar-bank data phone se bahar nahi jayega.',
+      'Adult-developer prototype with fictional sample forms. Demo mode uses mock AI; live cloud accepts only bundled synthetic samples. Personal form photos require real on-device Nano and never fall back to cloud. Answers stay local.',
     ),
   );
 }
@@ -108,7 +108,7 @@ function liveBanner(snap: ReturnType<typeof hybridSnapshot>): HTMLElement {
     h(
       'div',
       {},
-      h('b', {}, isDevice ? 'On-device ready. ' : 'Cloud path chal raha hai. '),
+      h('b', {}, isDevice ? 'On-device ready. ' : 'Synthetic-sample cloud path. '),
       snap.deviceReason,
     ),
   );
@@ -248,16 +248,15 @@ function hybridStrip(): HTMLElement {
     <div class="row gap-8 mt-8 wrap">
       <div class="stat" style="border-color:#bfe0cc;background:var(--green-100)">
         <div class="n" style="color:var(--green-800)">${onDevice.length}</div>
-        <div class="l">steps on-device</div>
+        <div class="l">intended local routes</div>
       </div>
       <div class="stat" style="border-color:#c7ddf5;background:var(--blue-100)">
         <div class="n" style="color:#14528f">${cloud.length}</div>
-        <div class="l">steps in cloud</div>
+        <div class="l">planned cloud routes</div>
       </div>
     </div>
     <p class="text-xs muted mt-8">
-      Form padhna, sawaal poochna aur jawab save karna — sab <b>on-device</b> (Gemini Nano).
-      Official instruction page se milaan aur final check — <b>cloud</b>, bina aapke personal values ke.
+      Demo mode simulates AI. Live personal content never falls back to cloud. Without Nano, questions and answer mapping use local rules. Cloud verification of personal forms is blocked; live inference is not yet verified.
     </p>
   `;
   card.querySelector('#open-log')?.addEventListener('click', () => openRouterLog());

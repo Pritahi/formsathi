@@ -45,6 +45,7 @@ export function badge(opts: BadgeOptions): string {
 export function badgeForLog(entry: RouteLogEntry | undefined): string {
   if (!entry) return '';
   if (!entry.ok) return badge({ kind: entry.offline ? 'queued' : 'fallback', label: entry.offline ? 'Queue mein' : 'Fail' });
+  if (entry.actualPath === 'local') return badge({ kind: 'offline', label: 'Local rules (no AI)' });
   if (entry.actualPath === 'on-device') return badge({ kind: 'on-device', title: entry.reason });
   if (entry.actualPath === 'mock-on-device')
     return badge({ kind: 'on-device', label: 'On-device (demo)', title: entry.reason });
@@ -87,7 +88,8 @@ export function lightCounts(counts: { green: number; yellow: number; red: number
 /** The model/path line shown under a completed step ("gemini-nano · 1.2s · 0 KB uploaded"). */
 export function provenanceLine(entry: RouteLogEntry | undefined): string {
   if (!entry) return '';
-  const kb = entry.imageBytes ? `${Math.round(entry.imageBytes / 1024)} KB` : '0 KB';
+  const uploaded = entry.actualPath === 'cloud' || entry.actualPath === 'mock-cloud';
+  const kb = uploaded && entry.imageBytes ? `${Math.round(entry.imageBytes / 1024)} KB` : '0 KB';
   const lat = entry.latencyMs >= 1000 ? `${(entry.latencyMs / 1000).toFixed(1)}s` : `${entry.latencyMs}ms`;
   return html`<p class="prov">
     <span class="prov-model">${entry.model}</span>

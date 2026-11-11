@@ -69,9 +69,9 @@ export async function initFirebase(): Promise<FirebaseStatus> {
       const firebaseApp = app.getApps().length ? app.getApp() : app.initializeApp(cfg);
 
       dbRef = fs.getFirestore(firebaseApp);
-      storageRef = storage.getStorage(firebaseApp);
+      storageRef = null; // Spark project has no Storage; images stay local.
       firebaseStatus.firestore = true;
-      firebaseStatus.storage = true;
+      firebaseStatus.storage = false;
 
       // Anonymous auth: silent, free, and enough for owner-scoped rules.
       const auth0 = auth.getAuth(firebaseApp);

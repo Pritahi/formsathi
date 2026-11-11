@@ -172,7 +172,7 @@ export interface FormSession {
 
 /** ── Router log ──────────────────────────────────────────────────────── */
 
-export type InferencePath = 'on-device' | 'cloud' | 'mock-on-device' | 'mock-cloud';
+export type InferencePath = 'local' | 'on-device' | 'cloud' | 'mock-on-device' | 'mock-cloud';
 
 export type RouteTask =
   | 'field_extraction'

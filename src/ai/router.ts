@@ -410,7 +410,8 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
     image: args.image ? { base64: args.image.base64, mimeType: args.image.mimeType } : undefined,
     json: true,
     schema: plan.effective === 'cloud' ? EXTRACTION_SCHEMA : undefined,
-    prefer: plan.effective,
+    prefer: args.sample === 'scholarship' || args.sample === 'bank' ? plan.effective : 'on-device',
+    syntheticOnly: args.sample === 'scholarship' || args.sample === 'bank',
     temperature: 0.2,
   });
 
@@ -423,6 +424,7 @@ export async function routeExtract(args: ExtractArgs): Promise<ExtractOutput> {
       prompt: `Extraction JSON invalid tha (${String(err)}). Sirf valid JSON do, shape: {"title","formType","authority","fields":[{"label","type","required","confidence"}],"notes":[]}`,
       json: true,
       prefer: call.path,
+      syntheticOnly: args.sample === 'scholarship' || args.sample === 'bank',
       temperature: 0,
     });
     extraction = normalizeExtraction(parseJsonLoose<FormExtraction>(repair.text));
@@ -478,14 +480,14 @@ export async function routeInterviewTurn(args: TurnArgs): Promise<{ turn: Interv
   const started = performance.now();
   const promptText = buildInterviewPrompt(args.state, args.userInput);
 
-  if (routerState.demoMode) {
-    await mockDelay('onDeviceTurn');
+  if (routerState.demoMode || plan.effective === 'cloud') {
+    if (routerState.demoMode) await mockDelay('onDeviceTurn');
     const turn = mockInterviewTurn(args.state);
     const log = logCall({
       task: 'interview_turn',
       plan,
-      actualPath: 'mock-on-device',
-      model: 'gemini-nano (demo)',
+      actualPath: routerState.demoMode ? 'mock-on-device' : 'local',
+      model: routerState.demoMode ? 'gemini-nano (demo)' : 'local-template (no AI)',
       startedAt: started,
       redacted: true,
       ok: true,
@@ -499,7 +501,7 @@ export async function routeInterviewTurn(args: TurnArgs): Promise<{ turn: Interv
   const call = await callModel(FIREBASE_CONFIG, {
     prompt: promptText,
     json: true,
-    prefer: plan.effective,
+    prefer: 'on-device',
     temperature: 0.5,
     maxOutputTokens: 512,
   });
@@ -546,14 +548,14 @@ export async function routeNormalizeAnswer(args: {
     args.raw,
   );
 
-  if (routerState.demoMode) {
-    await new Promise((r) => setTimeout(r, 260));
+  if (routerState.demoMode || plan.effective === 'cloud') {
+    if (routerState.demoMode) await new Promise((r) => setTimeout(r, 260));
     const out = mockNormalize(args.field, args.raw);
     const log = logCall({
       task: 'answer_repair',
       plan,
-      actualPath: 'mock-on-device',
-      model: 'gemini-nano (demo)',
+      actualPath: routerState.demoMode ? 'mock-on-device' : 'local',
+      model: routerState.demoMode ? 'gemini-nano (demo)' : 'local-template (no AI)',
       startedAt: started,
       redacted: true,
       ok: true,
@@ -566,7 +568,7 @@ export async function routeNormalizeAnswer(args: {
   const call = await callModel(FIREBASE_CONFIG, {
     prompt: promptText,
     json: true,
-    prefer: plan.effective,
+    prefer: 'on-device',
     temperature: 0.1,
     maxOutputTokens: 256,
   });
@@ -742,7 +744,7 @@ export async function routeReviewSummary(args: {
     return { ...out, log };
   }
 
-  if (!FIREBASE_CONFIGURED || cloudBlockedOffline()) {
+  if (!routerState.demoMode || !FIREBASE_CONFIGURED || cloudBlockedOffline()) {
     const local = mockReviewSummary({
       formTitle: args.formTitle,
       counts: args.counts,
@@ -751,13 +753,13 @@ export async function routeReviewSummary(args: {
     const log = logCall({
       task: 'review_summary',
       plan,
-      actualPath: 'cloud',
-      model: 'local-template',
+      actualPath: 'local',
+      model: 'local-template (no AI)',
       startedAt: started,
       redacted: false,
       ok: true,
       promptText,
-      fallbackReason: 'Cloud available nahi — local template se summary banayi (offline-safe).',
+      fallbackReason: 'Local summary template, not AI verification.',
     });
     return { ...local, log };
   }
@@ -813,17 +815,17 @@ export async function routeFreeformChat(args: {
     return { answer: mockChat(args.question), log };
   }
 
-  if (!FIREBASE_CONFIGURED || cloudBlockedOffline()) {
+  if (!routerState.demoMode || !FIREBASE_CONFIGURED || cloudBlockedOffline()) {
     const log = logCall({
       task: 'freeform_chat',
       plan,
-      actualPath: 'cloud',
-      model: 'local-template',
+      actualPath: 'local',
+      model: 'local-template (no AI)',
       startedAt: started,
       redacted: false,
       ok: true,
       promptText,
-      fallbackReason: 'Offline — chat ke liye internet chahiye. Local tip dikha rahe hain.',
+      fallbackReason: 'Privacy-safe local help; free-form text is not sent to unpaid cloud AI.',
     });
     return { answer: mockChat(args.question), log };
   }

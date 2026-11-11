@@ -45,6 +45,8 @@ export interface AiCallOptions {
   maxOutputTokens?: number;
   /** Preferred half. 'on-device' uses PREFER_ON_DEVICE, 'cloud' is cloud-only. */
   prefer: 'on-device' | 'cloud';
+  /** Only bundled, synthetic content may use the unpaid cloud API. */
+  syntheticOnly?: boolean;
 }
 
 export interface AiCallResult {
@@ -90,7 +92,7 @@ export async function initAi(config: FirebaseWebConfig): Promise<void> {
     // PREFER_ON_DEVICE: try Nano, fall back to cloud. The SDK's own fallback
     // is what makes the phone/Safari story work without any special casing.
     genModel = ai.getGenerativeModel(aiInstance, {
-      mode: ai.InferenceMode.PREFER_ON_DEVICE,
+      mode: ai.InferenceMode.ONLY_ON_DEVICE,
       inCloudParams: {
         model: CLOUD_MODEL,
         generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
@@ -167,6 +169,9 @@ function buildParts(opts: AiCallOptions): Part[] {
  * reports truthfully what happened.
  */
 export async function callModel(config: FirebaseWebConfig, opts: AiCallOptions): Promise<AiCallResult> {
+  if (opts.prefer === 'cloud' && (!opts.syntheticOnly || typeof sessionStorage === 'undefined' || sessionStorage.getItem('formsathi-cloud-eligible') !== 'yes')) {
+    throw new Error('Privacy guard: personal or free-form content cannot use unpaid cloud inference. Use the local workflow or synthetic samples.');
+  }
   await initAi(config);
   const started = performance.now();
 
@@ -194,27 +199,7 @@ export async function callModel(config: FirebaseWebConfig, opts: AiCallOptions):
   try {
     result = await model.generateContent(request, { timeout: 60_000 });
   } catch (err) {
-    // If PREFER_ON_DEVICE threw because ONLY_ON_DEVICE-style unavailability
-    // slipped through, retry once in the cloud rather than failing the step.
-    if (opts.prefer === 'on-device') {
-      const fallback = await cloudModel!.generateContent(
-        {
-          contents: [{ role: 'user', parts }],
-          generationConfig: {
-            ...generationConfig,
-            ...(opts.schema ? { responseSchema: opts.schema } : {}),
-          } as GenerationConfig,
-        } as GenerateContentRequest,
-        { timeout: 60_000 },
-      );
-      return {
-        text: fallback.response.text(),
-        path: 'cloud',
-        model: CLOUD_REASONING_MODEL,
-        latencyMs: Math.round(performance.now() - started),
-        fellBack: true,
-      };
-    }
+    // Never retry personal content in the cloud. ONLY_ON_DEVICE is a hard boundary.
     throw err;
   }
 

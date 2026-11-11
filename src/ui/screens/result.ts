@@ -87,14 +87,14 @@ export async function renderResult(host: HTMLElement, sessionId?: string): Promi
     const card = h('div', { class: 'card mb-12' });
     if (!summary) {
       card.innerHTML = `
-        <div class="row gap-8">${badge({ kind: 'cloud', small: true })}<span class="text-xs muted">review summary</span></div>
+        <div class="row gap-8">${badge({ kind: state.settings.demoMode ? 'demo' : 'offline', small: true, label: state.settings.demoMode ? 'Mock review' : 'Local template (no AI)' })}<span class="text-xs muted">review summary</span></div>
         <p class="text-sm muted mt-8">Review summary banaya ja raha hai…</p>
       `;
       void loadSummary();
       return card;
     }
     card.innerHTML = `
-      <div class="row wrap gap-6 mb-8">${badge({ kind: 'cloud', small: true, label: 'Cloud summary' })}
+      <div class="row wrap gap-6 mb-8">${badge({ kind: state.settings.demoMode ? 'demo' : 'offline', small: true, label: state.settings.demoMode ? 'Mock summary' : 'Local summary (no AI)' })}
       ${state.settings.demoMode ? badge({ kind: 'demo', small: true }) : ''}
       <span class="text-xs muted">${Math.round(summary.confidence * 100)}%</span></div>
       <p class="text-sm" style="line-height:1.55">${escape(summary.summary)}</p>
