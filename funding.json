@@ -6,7 +6,7 @@
     "role": "maintainer",
     "name": "Prit Ahir",
     "email": "pritahir417@gmail.com",
-    "description": "Individual developer based in India, requesting maintenance funding for FormSathi, an existing MIT-licensed prototype developed with substantial AI assistance. It makes no claim of paying users, revenue, verified adoption or fully on-device AI.",
+    "description": "Individual developer based in India, requesting maintenance funding for FormSathi and the other MIT-licensed prototypes listed here, all developed with substantial AI assistance. No claim of paying users, revenue, verified adoption or fully on-device AI is made for any of them.",
     "webpageUrl": {
       "url": "https://github.com/Pritahi"
     }
@@ -32,6 +32,226 @@
         "web-app",
         "india"
       ]
+    },
+    {
+      "guid": "freshcheck",
+      "name": "FreshCheck",
+      "description": "Stale-answer detector for AI applications: re-verifies LLM answers against live web sources and flags claims that have gone out of date. Early prototype with a working hosted demo; built with Bifrost and Tavily as proprietary service dependencies.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/freshcheck"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "ai",
+        "fact-checking",
+        "web-app",
+        "india"
+      ],
+      "webpageUrl": {
+        "url": "https://freshcheck-rust.vercel.app"
+      }
+    },
+    {
+      "guid": "signal-room",
+      "name": "Signal Room",
+      "description": "Incident-triage copilot that runs two open-weight models to analyze pasted logs, alerts and stack traces, cross-checks their assessments and suggests next steps. Early prototype from the Mozilla Otari hackathon.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/signal-room"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "devops",
+        "incident-response",
+        "ai",
+        "open-models"
+      ],
+      "webpageUrl": {
+        "url": "https://github.com/Pritahi/signal-room"
+      }
+    },
+    {
+      "guid": "switchcart",
+      "name": "SwitchCart",
+      "description": "Buyer-consent layer for PayPal authorizations: when an item is unavailable, an AI proposes substitutions that the buyer must explicitly approve before capture. Early prototype with a hosted demo; uses proprietary PayPal APIs.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/switchcart"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "payments",
+        "e-commerce",
+        "ai",
+        "consumer-protection"
+      ],
+      "webpageUrl": {
+        "url": "https://switchcart-alpha.vercel.app"
+      }
+    },
+    {
+      "guid": "schemesathi",
+      "name": "SchemeSathi",
+      "description": "Voice-first agent that helps people check eligibility for Indian government schemes and explains required documents in simple language. Early prototype; not an official government service.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/schemesathi"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "civic-tech",
+        "voice",
+        "accessibility",
+        "india"
+      ],
+      "webpageUrl": {
+        "url": "https://pritahi.github.io/schemesathi/"
+      }
+    },
+    {
+      "guid": "emma-mcp",
+      "name": "emma-mcp",
+      "description": "MCP server giving AI agents access to multi-cloud spot compute through the emma API, so agent workflows can provision cheaper compute. Early prototype; depends on the proprietary emma service.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/emma-mcp"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "mcp",
+        "cloud",
+        "ai-agents",
+        "infrastructure"
+      ],
+      "webpageUrl": {
+        "url": "https://github.com/Pritahi/emma-mcp"
+      }
+    },
+    {
+      "guid": "vitalsguard-rt",
+      "name": "VitalsGuard RT",
+      "description": "Deterministic real-time patient-vitals alarm engine prototype for QNX 8.0: rule-based threshold and trend alarms with no AI in the safety path, aimed at predictable latency. Early prototype, not a medical device.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/vitalsguard-rt"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "realtime",
+        "health",
+        "embedded",
+        "safety"
+      ],
+      "webpageUrl": {
+        "url": "https://github.com/Pritahi/vitalsguard-rt"
+      }
+    },
+    {
+      "guid": "open-agent-trust-badge",
+      "name": "Open Agent Trust Badge",
+      "description": "Web component that publishes and verifies signed trust records from an agent-manifest.json, so websites can show a verifiable badge for their AI agents. Early prototype with a hosted demo.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/open-agent-trust-badge"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "web-component",
+        "trust",
+        "ai-agents",
+        "security"
+      ],
+      "webpageUrl": {
+        "url": "https://pritahi.github.io/open-agent-trust-badge/"
+      }
+    },
+    {
+      "guid": "hackhunt-crew",
+      "name": "HackHunt Crew",
+      "description": "Four-agent crew that evaluates hackathon projects against judging criteria and shares one memory store, built for ContextCon 2026 with a Meko backend. Early prototype.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/hackhunt-crew"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "ai-agents",
+        "evaluation",
+        "hackathon",
+        "multi-agent"
+      ],
+      "webpageUrl": {
+        "url": "https://github.com/Pritahi/hackhunt-crew"
+      }
+    },
+    {
+      "guid": "framesheet",
+      "name": "FrameSheet",
+      "description": "Client-side zone-activity computer-vision engine stitched into a spreadsheet UI: camera regions map to cells and update them locally in the browser. Early prototype from Kiroween 2026; runs fully client-side.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/framesheet"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "computer-vision",
+        "spreadsheets",
+        "client-side",
+        "privacy"
+      ],
+      "webpageUrl": {
+        "url": "https://github.com/Pritahi/framesheet"
+      }
+    },
+    {
+      "guid": "showup-near",
+      "name": "ShowUp",
+      "description": "Cross-chain event commitment escrow on NEAR: attendees stake a deposit refunded on check-in, using NEAR Intents and a DAO contract. Early prototype with a hosted demo on testnet-grade infrastructure.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/showup-near"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "blockchain",
+        "near",
+        "escrow",
+        "events"
+      ],
+      "webpageUrl": {
+        "url": "https://showup-near.vercel.app"
+      }
+    },
+    {
+      "guid": "escalating-rebuttal-flip-curves",
+      "name": "Escalating Rebuttal Flip Curves",
+      "description": "Code, data and paper for a research sprint entry studying how repeated rebuttals flip AI model answers, with reproducible experiment scripts and result data.",
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/escalating-rebuttal-flip-curves"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "research",
+        "ai-safety",
+        "evaluation",
+        "data"
+      ],
+      "webpageUrl": {
+        "url": "https://github.com/Pritahi/escalating-rebuttal-flip-curves"
+      }
     }
   ],
   "funding": {
@@ -39,7 +259,7 @@
       {
         "guid": "arrange-transfer",
         "type": "other",
-        "description": "Grant payout method to be agreed privately after selection. No payment credentials are published in this draft."
+        "description": "Grant payout method to be agreed privately after selection. No payment credentials are published in this manifest."
       }
     ],
     "plans": [
@@ -48,6 +268,18 @@
         "status": "active",
         "name": "12-week maintenance and accessibility pilot",
         "description": "12-week FormSathi maintenance: triage dependency advisories, update packages, add privacy regression tests (wks 1-4); improve offline/manual path, keyboard/screen-reader access, vault recovery docs (wks 5-8); pilot with five consenting adults on fictional data, fix critical issues, tag a documented release (wks 9-12). Budget: maintainer 240h x INR 500 = INR 120000; security review INR 15000; testing/data INR 9000; hosting/backup INR 6000. Maintainer commits ~20 h/week plus one community update.",
+        "amount": 150000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "portfolio-maintenance-12-weeks",
+        "status": "inactive",
+        "name": "12-week maintenance of the additional prototypes",
+        "description": "DRAFT pending maintainer approval. 12-week maintenance across the other listed prototypes: dependency and security triage, tests, documentation, reproducible setup and tagged releases. Budget: maintainer 240h x INR 500 = INR 120000; independent security review INR 15000; testing/data INR 9000; hosting/backup INR 6000. About 20 h/week in addition to the FormSathi plan.",
         "amount": 150000,
         "currency": "INR",
         "frequency": "one-time",
