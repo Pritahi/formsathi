@@ -1,0 +1,60 @@
+{
+  "$schema": "https://fundingjson.org/schema/v1.1.0.json",
+  "version": "1.0.0",
+  "entity": {
+    "type": "individual",
+    "role": "maintainer",
+    "name": "Prit Ahir",
+    "email": "pritahir417@gmail.com",
+    "description": "Individual developer based in India, requesting maintenance funding for FormSathi, an existing MIT-licensed prototype developed with substantial AI assistance. It makes no claim of paying users, revenue, verified adoption or fully on-device AI.",
+    "webpageUrl": {
+      "url": "https://github.com/Pritahi"
+    }
+  },
+  "projects": [
+    {
+      "guid": "formsathi",
+      "name": "FormSathi",
+      "description": "A local-first form-filling prototype with a guided English interview, field checklist, answer sheet and encrypted device-local Answer Vault. The existing repository includes a working local/manual path and automated tests. Optional Firebase/Gemini services are proprietary dependencies; personal content does not fall back to cloud inference. Real Gemini Nano execution remains unverified. The request supports existing software maintenance, security, accessibility and reproducible self-hosting, not an unbuilt idea.",
+      "webpageUrl": {
+        "url": "https://formsathi.web.app/"
+      },
+      "repositoryUrl": {
+        "url": "https://github.com/Pritahi/formsathi"
+      },
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "tags": [
+        "privacy",
+        "accessibility",
+        "productivity",
+        "web-app",
+        "india"
+      ]
+    }
+  ],
+  "funding": {
+    "channels": [
+      {
+        "guid": "arrange-transfer",
+        "type": "other",
+        "description": "Grant payout method to be agreed privately after selection. No payment credentials are published in this draft."
+      }
+    ],
+    "plans": [
+      {
+        "guid": "maintenance-12-weeks",
+        "status": "active",
+        "name": "12-week maintenance and accessibility pilot",
+        "description": "Requested total INR 150000 for 12 weeks, beginning after agreement. Budget: maintainer work 240 hours at INR 500/hour = INR 120000; independent security review allowance INR 15000; accessibility and device-testing/data allowance INR 9000; hosting, domain and backup allowance INR 6000. These are planning allowances, not vendor quotes. Weeks 1-4: triage dependency advisories, update vulnerable packages, verify privacy boundaries, publish a threat model, dependency/license inventory and reproducible setup. Weeks 5-8: improve offline/manual workflows, keyboard and screen-reader access, vault backup/recovery guidance, and add regression tests. Weeks 9-12: seek five consenting adult testers using fictional forms, record attempts and failures without inventing recruitment or success, fix critical usability issues, tag a documented release and publish one community update/demo. Acceptance evidence: clean install, typecheck, build and regression results; every remaining high/critical advisory documented with exposure and mitigation; no personal-content cloud fallback; documented accessibility checks; a candid pilot report even if recruitment fails. Longer-term sustainability: keep the local/manual core free under MIT and assess donations or optional setup support only after genuine demand. No promised customers or future revenue. No overlap with any other grant: if Bagel or another fund supports the same costs, disclose it and reduce or reallocate this request only with funder agreement. Personal milestone: contribute approximately 20 hours/week and publish at least one community engagement during the quarter.",
+        "amount": 150000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      }
+    ]
+  }
+}
