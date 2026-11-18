@@ -276,11 +276,131 @@
         ]
       },
       {
-        "guid": "portfolio-maintenance-12-weeks",
+        "guid": "freshcheck-maint-12wk",
         "status": "active",
-        "name": "12-week maintenance of the additional prototypes",
-        "description": "12-week maintenance across the other listed prototypes: dependency and security triage, tests, documentation, reproducible setup and tagged releases. Budget: maintainer 240h x INR 500 = INR 120000; independent security review INR 15000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency and security triage with tagged releases; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, release hardening and a public maintenance report.",
-        "amount": 150000,
+        "name": "12-week maintenance of FreshCheck",
+        "description": "12-week maintenance of FreshCheck: keep the live-source re-verification engine current, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "signal-room-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of Signal Room",
+        "description": "12-week maintenance of Signal Room: maintain the dual-model log triage pipeline, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "switchcart-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of SwitchCart",
+        "description": "12-week maintenance of SwitchCart: maintain the buyer-consent substitution flow, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "schemesathi-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of SchemeSathi",
+        "description": "12-week maintenance of SchemeSathi: keep scheme eligibility content and the voice flow current, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "emma-mcp-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of emma-mcp",
+        "description": "12-week maintenance of emma-mcp: track emma API changes and MCP spec updates, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "vitalsguard-rt-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of VitalsGuard RT",
+        "description": "12-week maintenance of VitalsGuard RT: maintain the rule-based alarm engine and the QNX build, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "open-agent-trust-badg-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of Open Agent Trust Badge",
+        "description": "12-week maintenance of Open Agent Trust Badge: maintain the badge component and trust-record verification, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "hackhunt-crew-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of HackHunt Crew",
+        "description": "12-week maintenance of HackHunt Crew: maintain the evaluation agents and the memory backend, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "framesheet-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of FrameSheet",
+        "description": "12-week maintenance of FrameSheet: maintain the client-side vision engine and spreadsheet UI, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "showup-near-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of ShowUp",
+        "description": "12-week maintenance of ShowUp: maintain the escrow contracts and check-in flow, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
+        "currency": "INR",
+        "frequency": "one-time",
+        "channels": [
+          "arrange-transfer"
+        ]
+      },
+      {
+        "guid": "escalating-rebuttal-f-maint-12wk",
+        "status": "active",
+        "name": "12-week maintenance of Escalating Rebuttal Flip Curves",
+        "description": "12-week maintenance of Escalating Rebuttal Flip Curves: maintain the experiment code, data and reproducibility, dependency/security triage, tests, documentation and tagged releases. Budget: maintainer 120h x INR 500 = INR 60000; independent security review INR 10000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency/security triage with a first tagged release; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, hardening and a report.",
+        "amount": 85000,
         "currency": "INR",
         "frequency": "one-time",
         "channels": [
