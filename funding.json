@@ -277,9 +277,9 @@
       },
       {
         "guid": "portfolio-maintenance-12-weeks",
-        "status": "inactive",
+        "status": "active",
         "name": "12-week maintenance of the additional prototypes",
-        "description": "DRAFT pending maintainer approval. 12-week maintenance across the other listed prototypes: dependency and security triage, tests, documentation, reproducible setup and tagged releases. Budget: maintainer 240h x INR 500 = INR 120000; independent security review INR 15000; testing/data INR 9000; hosting/backup INR 6000. About 20 h/week in addition to the FormSathi plan.",
+        "description": "12-week maintenance across the other listed prototypes: dependency and security triage, tests, documentation, reproducible setup and tagged releases. Budget: maintainer 240h x INR 500 = INR 120000; independent security review INR 15000; testing/data INR 9000; hosting/backup INR 6000. Milestones: weeks 1-4 dependency and security triage with tagged releases; weeks 5-8 tests and documentation; weeks 9-12 reproducible setup, release hardening and a public maintenance report.",
         "amount": 150000,
         "currency": "INR",
         "frequency": "one-time",
